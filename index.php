@@ -1,3 +1,4 @@
 <?php
-echo "Campus Event Management System is running successfully!";
+header('Location: login.html');
+exit;
 ?>

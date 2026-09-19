@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register | Campus Event &amp; Volunteer Management System</title>
+</head>
+<body>
+    <main>
+        <h1>Create an Account</h1>
+
+        <form action="#" method="post">
+            <div>
+                <label for="full-name">Full name</label>
+                <input
+                    type="text"
+                    id="full-name"
+                    name="full_name"
+                    autocomplete="name"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="email">Email address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    autocomplete="email"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    autocomplete="new-password"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="confirm-password">Confirm password</label>
+                <input
+                    type="password"
+                    id="confirm-password"
+                    name="confirm_password"
+                    autocomplete="new-password"
+                    required
+                >
+            </div>
+
+            <div>
+                <label for="role">Select role</label>
+                <select id="role" name="role" required>
+                    <option value="student" selected>Student</option>
+                    <option value="organizer">Organizer</option>
+                    <option value="administrator">Administrator</option>
+                </select>
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p>
+            Already have an account?
+            <a href="login.html">Login here</a>
+        </p>
+    </main>
+</body>
+</html>
