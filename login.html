@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login | Campus Event &amp; Volunteer Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    body{
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        overflow-x: hidden;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+    }
+</style>
+</head>
+<body>
+    <main class="flex min-h-screen items-center justify-center bg-gray-100 p-6">
+        <section class="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+            <h1 class="mb-6 text-center text-2xl font-bold text-gray-800">Login</h1>
+            <form action="#" method="post">
+                <div>
+                    <label for="email" class="mb-1 block font-medium text-gray-700">Email address</label>
+                    <input type="email" id="email" name="email" autocomplete="email" required class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label for="password" class="mb-1 block font-medium text-gray-700">Password</label>
+                    <input type="password" id="password" name="password" autocomplete="current-password" required class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                </div>
+
+                <button type="submit" class="mt-4 w-full rounded-md bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700">Login</button>
+            </form>
+            <p class="mt-5 text-center text-sm text-gray-600">
+                Do not have an account?
+                <a href="register.html" class="font-medium text-blue-600 hover:underline">Register here</a>
+            </p>
+            </section>
+    </main>
+</body>
+</html>
