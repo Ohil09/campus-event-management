@@ -1,24 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-
-    <!-- Responsive viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <meta
-        name="description"
-        content="Organizer dashboard for the Campus Event and Volunteer Management System"
-    >
+    <meta name="description" content="Organizer dashboard for the Campus Event and Volunteer Management System">
 
     <title>Organizer Dashboard | Campus Event Management System</title>
-
-    <!-- Main stylesheet -->
     <link rel="stylesheet" href="../public/css/organizer.css">
 </head>
 
 <body>
-
     <!-- =========================================================
          SKIP LINK
          Allows keyboard users to skip repeated navigation.
@@ -27,32 +19,13 @@
         Skip to main content
     </a>
 
-
-    <!-- =========================================================
-         SITE HEADER
-    ========================================================== -->
     <header class="site-header">
-
         <div class="header-container">
-
-            <!-- Logo / Brand -->
-            <a
-                href="../index.php"
-                class="site-logo"
-                aria-label="Campus Event Management System Home"
-            >
-                CampusEvent
-            </a>
-
-
-            <!-- Mobile navigation toggle -->
-            <button
-                type="button"
-                class="menu-toggle"
-                aria-label="Open navigation menu"
-                aria-expanded="false"
-                aria-controls="organizer-navigation"
-            >
+            <!-- Logo -->
+            <a href="../index.php" class="site-logo" aria-label="Campus Event Management System Home">CampusEvent</a>
+            <!-- Mobile navigation-->
+            <button type="button" class="menu-toggle" aria-label="Open navigation menu" aria-expanded="false"
+                aria-controls="organizer-navigation">
                 ☰
             </button>
 
@@ -84,11 +57,7 @@
         <!-- =====================================================
              SIDEBAR / ORGANIZER NAVIGATION
         ====================================================== -->
-        <aside
-            class="sidebar"
-            id="organizer-navigation"
-            aria-label="Organizer navigation"
-        >
+        <aside class="sidebar" id="organizer-navigation" aria-label="Organizer navigation">
 
             <nav>
 
@@ -100,11 +69,7 @@
 
                     <!-- Dashboard -->
                     <li>
-                        <a
-                            href="organizer-dashboard.php"
-                            class="nav-link active"
-                            aria-current="page"
-                        >
+                        <a href="organizer-dashboard.php" class="nav-link active" aria-current="page">
                             <span aria-hidden="true">⌂</span>
                             <span>Dashboard</span>
                         </a>
@@ -112,10 +77,7 @@
 
                     <!-- Event Management -->
                     <li>
-                        <a
-                            href="event-management.php"
-                            class="nav-link"
-                        >
+                        <a href="event-management.php" class="nav-link">
                             <span aria-hidden="true">▣</span>
                             <span>Manage Events</span>
                         </a>
@@ -123,10 +85,7 @@
 
                     <!-- Participants -->
                     <li>
-                        <a
-                            href="event-management.php#participants"
-                            class="nav-link"
-                        >
+                        <a href="event-management.php#participants" class="nav-link">
                             <span aria-hidden="true">👥</span>
                             <span>Participants</span>
                         </a>
@@ -168,10 +127,7 @@
                 </div>
 
                 <!-- Primary action -->
-                <a
-                    href="event-management.php#create-event"
-                    class="btn btn-primary"
-                >
+                <a href="event-management.php#create-event" class="btn btn-primary">
                     Create New Event
                 </a>
 
@@ -181,10 +137,7 @@
             <!-- =================================================
                  SUMMARY / STATISTICS
             ================================================== -->
-            <section
-                class="dashboard-stats"
-                aria-labelledby="dashboard-summary-heading"
-            >
+            <section class="dashboard-stats" aria-labelledby="dashboard-summary-heading">
 
                 <h2 id="dashboard-summary-heading" class="visually-hidden">
                     Event summary
@@ -268,10 +221,7 @@
             <!-- =================================================
                  UPCOMING EVENTS
             ================================================== -->
-            <section
-                class="dashboard-section"
-                aria-labelledby="upcoming-events-heading"
-            >
+            <section class="dashboard-section" aria-labelledby="upcoming-events-heading">
 
                 <div class="section-header">
 
@@ -285,10 +235,7 @@
                         </p>
                     </div>
 
-                    <a
-                        href="event-management.php"
-                        class="text-link"
-                    >
+                    <a href="event-management.php" class="text-link">
                         View All Events
                     </a>
 
@@ -344,10 +291,7 @@
                                 </td>
 
                                 <td>
-                                    <a
-                                        href="event-management.php?event_id=1"
-                                        class="table-action"
-                                    >
+                                    <a href="event-management.php?event_id=1" class="table-action">
                                         Manage
                                     </a>
                                 </td>
@@ -380,10 +324,7 @@
                                 </td>
 
                                 <td>
-                                    <a
-                                        href="event-management.php?event_id=2"
-                                        class="table-action"
-                                    >
+                                    <a href="event-management.php?event_id=2" class="table-action">
                                         Manage
                                     </a>
                                 </td>
@@ -416,10 +357,7 @@
                                 </td>
 
                                 <td>
-                                    <a
-                                        href="event-management.php?event_id=3"
-                                        class="table-action"
-                                    >
+                                    <a href="event-management.php?event_id=3" class="table-action">
                                         Manage
                                     </a>
                                 </td>
@@ -438,10 +376,7 @@
             <!-- =================================================
                  QUICK ACTIONS
             ================================================== -->
-            <section
-                class="dashboard-section"
-                aria-labelledby="quick-actions-heading"
-            >
+            <section class="dashboard-section" aria-labelledby="quick-actions-heading">
 
                 <div class="section-header">
 
@@ -460,10 +395,7 @@
 
                 <div class="quick-actions">
 
-                    <a
-                        href="event-management.php#create-event"
-                        class="action-card"
-                    >
+                    <a href="event-management.php#create-event" class="action-card">
 
                         <h3>
                             Create Event
@@ -476,10 +408,7 @@
                     </a>
 
 
-                    <a
-                        href="event-management.php#participants"
-                        class="action-card"
-                    >
+                    <a href="event-management.php#participants" class="action-card">
 
                         <h3>
                             View Participants
@@ -492,10 +421,7 @@
                     </a>
 
 
-                    <a
-                        href="../volunteer/volunteer-management.php"
-                        class="action-card"
-                    >
+                    <a href="../volunteer/volunteer-management.php" class="action-card">
 
                         <h3>
                             Manage Volunteers
@@ -515,10 +441,7 @@
             <!-- =================================================
                  RECENT ACTIVITY
             ================================================== -->
-            <section
-                class="dashboard-section"
-                aria-labelledby="recent-activity-heading"
-            >
+            <section class="dashboard-section" aria-labelledby="recent-activity-heading">
 
                 <div class="section-header">
 
@@ -624,4 +547,5 @@
     <script src="../public/js/main.js"></script>
 
 </body>
+
 </html>

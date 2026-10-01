@@ -4,15 +4,9 @@
 <head>
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="description"
-        content="Manage campus events and participants"
-    >
+    <meta name="description" content="Manage campus events and participants">
 
     <title>Event Management | Campus Event Management System</title>
 
@@ -35,22 +29,13 @@
 
         <div class="header-container">
 
-            <a
-                href="../index.php"
-                class="site-logo"
-                aria-label="Campus Event Management System Home"
-            >
+            <a href="../index.php" class="site-logo" aria-label="Campus Event Management System Home">
                 CampusEvent
             </a>
 
 
-            <button
-                type="button"
-                class="menu-toggle"
-                aria-label="Open navigation menu"
-                aria-expanded="false"
-                aria-controls="organizer-navigation"
-            >
+            <button type="button" class="menu-toggle" aria-label="Open navigation menu" aria-expanded="false"
+                aria-controls="organizer-navigation">
                 ☰
             </button>
 
@@ -61,10 +46,7 @@
                     Welcome, Organizer
                 </span>
 
-                <a
-                    href="../auth/logout.php"
-                    class="logout-link"
-                >
+                <a href="../auth/logout.php" class="logout-link">
                     Logout
                 </a>
 
@@ -86,11 +68,7 @@
              SIDEBAR
         ================================================== -->
 
-        <aside
-            class="sidebar"
-            id="organizer-navigation"
-            aria-label="Organizer navigation"
-        >
+        <aside class="sidebar" id="organizer-navigation" aria-label="Organizer navigation">
 
             <nav>
 
@@ -101,10 +79,7 @@
                 <ul class="sidebar-menu">
 
                     <li>
-                        <a
-                            href="organizer-dashboard.php"
-                            class="nav-link"
-                        >
+                        <a href="organizer-dashboard.php" class="nav-link">
                             <span aria-hidden="true">⌂</span>
                             <span>Dashboard</span>
                         </a>
@@ -112,11 +87,7 @@
 
 
                     <li>
-                        <a
-                            href="event-management.php"
-                            class="nav-link active"
-                            aria-current="page"
-                        >
+                        <a href="event-management.php" class="nav-link active" aria-current="page">
                             <span aria-hidden="true">▣</span>
                             <span>Manage Events</span>
                         </a>
@@ -124,10 +95,7 @@
 
 
                     <li>
-                        <a
-                            href="#participants"
-                            class="nav-link"
-                        >
+                        <a href="#participants" class="nav-link">
                             <span aria-hidden="true">👥</span>
                             <span>Participants</span>
                         </a>
@@ -171,10 +139,7 @@
                 </div>
 
 
-                <a
-                    href="#create-event"
-                    class="btn btn-primary"
-                >
+                <a href="#create-event" class="btn btn-primary">
                     Create New Event
                 </a>
 
@@ -185,11 +150,7 @@
                  CREATE / EDIT EVENT
             ================================================== -->
 
-            <section
-                id="create-event"
-                class="dashboard-section"
-                aria-labelledby="event-form-heading"
-            >
+            <section id="create-event" class="dashboard-section" aria-labelledby="event-form-heading">
 
                 <div class="section-header">
 
@@ -209,11 +170,7 @@
                 </div>
 
 
-                <form
-                    action="#"
-                    method="post"
-                    class="event-form"
-                >
+                <form action="#" method="post" class="event-form">
 
                     <!-- Event Title -->
 
@@ -223,14 +180,8 @@
                             Event Title
                         </label>
 
-                        <input
-                            type="text"
-                            id="event-title"
-                            name="event_title"
-                            placeholder="Enter event title"
-                            required
-                            maxlength="100"
-                        >
+                        <input type="text" id="event-title" name="event_title" placeholder="Enter event title" required
+                            maxlength="100">
 
                     </div>
 
@@ -243,11 +194,7 @@
                             Category
                         </label>
 
-                        <select
-                            id="event-category"
-                            name="event_category"
-                            required
-                        >
+                        <select id="event-category" name="event_category" required>
 
                             <option value="">
                                 Select category
@@ -286,13 +233,8 @@
                             Event Description
                         </label>
 
-                        <textarea
-                            id="event-description"
-                            name="event_description"
-                            rows="5"
-                            placeholder="Describe the event"
-                            required
-                        ></textarea>
+                        <textarea id="event-description" name="event_description" rows="5"
+                            placeholder="Describe the event" required></textarea>
 
                     </div>
 
@@ -305,12 +247,7 @@
                             Event Date
                         </label>
 
-                        <input
-                            type="date"
-                            id="event-date"
-                            name="event_date"
-                            required
-                        >
+                        <input type="date" id="event-date" name="event_date" required>
 
                     </div>
 
@@ -323,12 +260,7 @@
                             Start Time
                         </label>
 
-                        <input
-                            type="time"
-                            id="start-time"
-                            name="start_time"
-                            required
-                        >
+                        <input type="time" id="start-time" name="start_time" required>
 
                     </div>
 
@@ -341,12 +273,7 @@
                             End Time
                         </label>
 
-                        <input
-                            type="time"
-                            id="end-time"
-                            name="end_time"
-                            required
-                        >
+                        <input type="time" id="end-time" name="end_time" required>
 
                     </div>
 
@@ -359,14 +286,7 @@
                             Venue
                         </label>
 
-                        <input
-                            type="text"
-                            id="venue"
-                            name="venue"
-                            placeholder="Enter venue"
-                            required
-                            maxlength="100"
-                        >
+                        <input type="text" id="venue" name="venue" placeholder="Enter venue" required maxlength="100">
 
                     </div>
 
@@ -379,15 +299,8 @@
                             Participant Capacity
                         </label>
 
-                        <input
-                            type="number"
-                            id="capacity"
-                            name="capacity"
-                            min="1"
-                            max="1000"
-                            placeholder="e.g. 100"
-                            required
-                        >
+                        <input type="number" id="capacity" name="capacity" min="1" max="1000" placeholder="e.g. 100"
+                            required>
 
                     </div>
 
@@ -400,12 +313,7 @@
                             Registration Deadline
                         </label>
 
-                        <input
-                            type="datetime-local"
-                            id="registration-deadline"
-                            name="registration_deadline"
-                            required
-                        >
+                        <input type="datetime-local" id="registration-deadline" name="registration_deadline" required>
 
                     </div>
 
@@ -418,11 +326,7 @@
                             Event Status
                         </label>
 
-                        <select
-                            id="event-status"
-                            name="event_status"
-                            required
-                        >
+                        <select id="event-status" name="event_status" required>
 
                             <option value="draft">
                                 Draft
@@ -449,17 +353,11 @@
 
                     <div class="form-actions">
 
-                        <button
-                            type="reset"
-                            class="btn btn-secondary"
-                        >
+                        <button type="reset" class="btn btn-secondary">
                             Clear
                         </button>
 
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
+                        <button type="submit" class="btn btn-primary">
                             Save Event
                         </button>
 
@@ -474,10 +372,7 @@
                  MY EVENTS
             ================================================== -->
 
-            <section
-                class="dashboard-section"
-                aria-labelledby="my-events-heading"
-            >
+            <section class="dashboard-section" aria-labelledby="my-events-heading">
 
                 <div class="section-header">
 
@@ -506,12 +401,7 @@
                             Search Events
                         </label>
 
-                        <input
-                            type="search"
-                            id="event-search"
-                            name="event_search"
-                            placeholder="Search by event name"
-                        >
+                        <input type="search" id="event-search" name="event_search" placeholder="Search by event name">
 
                     </div>
 
@@ -522,10 +412,7 @@
                             Filter by Status
                         </label>
 
-                        <select
-                            id="status-filter"
-                            name="status_filter"
-                        >
+                        <select id="status-filter" name="status_filter">
 
                             <option value="all">
                                 All
@@ -627,19 +514,13 @@
 
                                 <td>
 
-                                    <a
-                                        href="#edit-event"
-                                        class="table-action"
-                                    >
+                                    <a href="#edit-event" class="table-action">
                                         Edit
                                     </a>
 
                                     &nbsp;
 
-                                    <a
-                                        href="#participants"
-                                        class="table-action"
-                                    >
+                                    <a href="#participants" class="table-action">
                                         Participants
                                     </a>
 
@@ -676,19 +557,13 @@
 
                                 <td>
 
-                                    <a
-                                        href="#edit-event"
-                                        class="table-action"
-                                    >
+                                    <a href="#edit-event" class="table-action">
                                         Edit
                                     </a>
 
                                     &nbsp;
 
-                                    <a
-                                        href="#participants"
-                                        class="table-action"
-                                    >
+                                    <a href="#participants" class="table-action">
                                         Participants
                                     </a>
 
@@ -725,19 +600,13 @@
 
                                 <td>
 
-                                    <a
-                                        href="#edit-event"
-                                        class="table-action"
-                                    >
+                                    <a href="#edit-event" class="table-action">
                                         Edit
                                     </a>
 
                                     &nbsp;
 
-                                    <a
-                                        href="#participants"
-                                        class="table-action"
-                                    >
+                                    <a href="#participants" class="table-action">
                                         Participants
                                     </a>
 
@@ -758,11 +627,7 @@
                  PARTICIPANTS
             ================================================== -->
 
-            <section
-                id="participants"
-                class="dashboard-section"
-                aria-labelledby="participants-heading"
-            >
+            <section id="participants" class="dashboard-section" aria-labelledby="participants-heading">
 
                 <div class="section-header">
 
@@ -789,10 +654,7 @@
                         Select Event
                     </label>
 
-                    <select
-                        id="participant-event"
-                        name="participant_event"
-                    >
+                    <select id="participant-event" name="participant_event">
 
                         <option value="">
                             Select an event
@@ -880,10 +742,7 @@
 
                                 <td>
 
-                                    <button
-                                        type="button"
-                                        class="table-action"
-                                    >
+                                    <button type="button" class="table-action">
                                         View
                                     </button>
 
@@ -916,10 +775,7 @@
 
                                 <td>
 
-                                    <button
-                                        type="button"
-                                        class="table-action"
-                                    >
+                                    <button type="button" class="table-action">
                                         View
                                     </button>
 
@@ -952,10 +808,7 @@
 
                                 <td>
 
-                                    <button
-                                        type="button"
-                                        class="table-action"
-                                    >
+                                    <button type="button" class="table-action">
                                         View
                                     </button>
 
