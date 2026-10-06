@@ -1,3 +1,12 @@
+<?php
+
+require_once '../auth/auth_check.php';
+
+require_role('organizer');
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
