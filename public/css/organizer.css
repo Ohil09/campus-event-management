@@ -682,6 +682,37 @@ tbody tr:hover {
 
 
 /* =========================================================
+   FORM MESSAGES (Success / Error)
+========================================================= */
+
+.form-message {
+    grid-column: 1 / -1;
+
+    padding: 0.85rem 1.15rem;
+    margin-bottom: 1rem;
+
+    border-radius: 7px;
+    border: 1px solid transparent;
+
+    font-size: 0.93rem;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.form-message[role="alert"] {
+    background-color: #fef2f2;
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+.form-message[role="status"] {
+    background-color: #f0fdf4;
+    border-color: #86efac;
+    color: #166534;
+}
+
+
+/* =========================================================
    EVENT FORM
 ========================================================= */
 
