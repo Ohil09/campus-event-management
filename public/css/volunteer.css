@@ -1,0 +1,549 @@
+/* =========================================================
+   VOLUNTEER PAGES — Shared Styles
+   Extends organizer.css design system
+========================================================= */
+
+
+/* =========================================================
+   VOLUNTEER OPPORTUNITY CARDS
+========================================================= */
+
+.opportunity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.opportunity-card {
+    background-color: #fff;
+    border: 1px solid #e1e6eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.opportunity-card:hover {
+    border-color: #2f6b9a;
+    box-shadow: 0 6px 20px rgba(22, 58, 95, 0.10);
+    transform: translateY(-3px);
+}
+
+.opportunity-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.opportunity-card-header h3 {
+    color: #163a5f;
+    font-size: 1.1rem;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.opportunity-event {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #2f6b9a;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.opportunity-event::before {
+    content: '📅';
+    font-size: 0.95rem;
+}
+
+.opportunity-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.opportunity-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.opportunity-meta-item strong {
+    color: #374151;
+    font-weight: 600;
+}
+
+.opportunity-description {
+    color: #4b5563;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.opportunity-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 0.85rem;
+    border-top: 1px solid #f0f2f5;
+}
+
+.slots-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.slots-bar {
+    width: 80px;
+    height: 6px;
+    background-color: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.slots-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background-color: #2f6b9a;
+    transition: width 0.4s ease;
+}
+
+.slots-bar-fill.slots-full {
+    background-color: #dc2626;
+}
+
+.slots-text {
+    font-size: 0.8rem;
+    color: #6b7280;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   APPLICATION STATUS BADGE (Student side)
+========================================================= */
+
+.application-status-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background-color: #f8fafc;
+    border: 1px solid #e1e6eb;
+    border-radius: 8px;
+    font-size: 0.88rem;
+}
+
+.application-status-card .status {
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   STATUS BADGE EXTENSIONS
+========================================================= */
+
+.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-approved {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-rejected {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.status-assigned {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-completed {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-cancelled {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+
+/* =========================================================
+   APPLY BUTTON
+========================================================= */
+
+.btn-apply {
+    background-color: #059669;
+    color: #fff;
+    font-size: 0.88rem;
+    padding: 0.55rem 1.1rem;
+}
+
+.btn-apply:hover {
+    background-color: #047857;
+}
+
+.btn-apply:disabled,
+.btn-apply.btn-disabled {
+    background-color: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* =========================================================
+   VOLUNTEER MANAGEMENT — Tabs
+========================================================= */
+
+.vol-tabs {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+}
+
+.vol-tab {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #6b7280;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.vol-tab:hover {
+    color: #163a5f;
+}
+
+.vol-tab.active {
+    color: #163a5f;
+    border-bottom-color: #163a5f;
+}
+
+.vol-tab-panel {
+    display: none;
+}
+
+.vol-tab-panel.active {
+    display: block;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS IN TABLES
+========================================================= */
+
+.btn-approve {
+    background-color: #059669;
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.btn-approve:hover {
+    background-color: #047857;
+}
+
+.btn-reject {
+    background-color: #dc2626;
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.btn-reject:hover {
+    background-color: #b91c1c;
+}
+
+.btn-assign {
+    background-color: #2563eb;
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.btn-assign:hover {
+    background-color: #1d4ed8;
+}
+
+.btn-complete {
+    background-color: #059669;
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.btn-complete:hover {
+    background-color: #047857;
+}
+
+.btn-cancel-assignment {
+    background-color: #6b7280;
+    color: #fff;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.btn-cancel-assignment:hover {
+    background-color: #4b5563;
+}
+
+.action-btn-group {
+    display: inline-flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   COUNTS BADGE
+========================================================= */
+
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background-color: #163a5f;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 0.35rem;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: #6b7280;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
+}
+
+.empty-state h3 {
+    color: #374151;
+    font-size: 1.15rem;
+    margin-bottom: 0.45rem;
+}
+
+.empty-state p {
+    font-size: 0.9rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   VOLUNTEER SUMMARY CARDS
+========================================================= */
+
+.vol-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.vol-summary-card {
+    background-color: #f8fafc;
+    border: 1px solid #e1e6eb;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.vol-summary-card .stat-value {
+    font-size: 1.6rem;
+}
+
+.vol-summary-card .stat-description {
+    font-size: 0.82rem;
+}
+
+
+/* =========================================================
+   MY APPLICATIONS SECTION (Student)
+========================================================= */
+
+.my-applications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.my-application-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    background-color: #fff;
+    border: 1px solid #e1e6eb;
+    border-radius: 8px;
+    transition: border-color 0.2s ease;
+}
+
+.my-application-item:hover {
+    border-color: #2f6b9a;
+}
+
+.my-application-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.my-application-info strong {
+    color: #163a5f;
+    font-size: 0.95rem;
+}
+
+.my-application-info span {
+    color: #6b7280;
+    font-size: 0.83rem;
+}
+
+.my-application-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   FILTER BAR
+========================================================= */
+
+.vol-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border: 1px solid #e1e6eb;
+    border-radius: 8px;
+}
+
+.vol-filter-bar .form-group {
+    flex: 1;
+    min-width: 180px;
+}
+
+
+/* =========================================================
+   RESPONSIVE — TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+    .opportunity-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vol-summary-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .opportunity-card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .vol-tabs {
+        overflow-x: auto;
+    }
+
+    .vol-tab {
+        white-space: nowrap;
+        padding: 0.65rem 0.9rem;
+        font-size: 0.85rem;
+    }
+
+    .my-application-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .vol-summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .vol-filter-bar {
+        flex-direction: column;
+    }
+
+    .action-btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+}
