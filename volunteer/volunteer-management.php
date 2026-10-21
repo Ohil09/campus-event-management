@@ -462,6 +462,7 @@ $rejectedApps = array_filter($applications, fn($a) => $a['app_status'] === 'reje
                     <li><a href="../organizer/organizer-dashboard.php" class="nav-link"><span aria-hidden="true">&#128202;</span><span>Dashboard</span></a></li>
                     <li><a href="../organizer/event-management.php" class="nav-link"><span aria-hidden="true">&#128197;</span><span>Manage Events</span></a></li>
                     <li><a href="volunteer-management.php" class="nav-link active" aria-current="page"><span aria-hidden="true">&#129309;</span><span>Volunteers</span></a></li>
+                    <li><a href="../organizer/event-management.php#participants" class="nav-link"><span aria-hidden="true">&#128101;</span><span>Participants</span></a></li>
                 </ul>
             </nav>
         </aside>
