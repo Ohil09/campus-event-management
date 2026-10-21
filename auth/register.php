@@ -176,7 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <!-- Registration Form -->
-            <form action="register.php" method="post">
+            <form action="register.php" method="post" id="register-form" novalidate>
 
                 <!-- Full Name -->
                 <div class="mb-4">
@@ -187,6 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <input type="text" id="full-name" name="full_name" autocomplete="name" required
                         class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                    <p id="full-name-error" class="mt-1 text-sm text-red-600" role="alert"></p>
 
                 </div>
 
@@ -200,6 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <input type="email" id="email" name="email" autocomplete="email" required
                         class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                    <p id="email-error" class="mt-1 text-sm text-red-600" role="alert"></p>
 
                 </div>
 
@@ -211,8 +213,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         Password
                     </label>
 
-                    <input type="password" id="password" name="password" autocomplete="new-password" required
-                        class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                    <div class="relative">
+                        <input type="password" id="password" name="password" autocomplete="new-password" required
+                            class="w-full rounded-md border border-gray-300 px-3 py-2 pr-11 focus:border-blue-500 focus:outline-none">
+                        <button type="button"
+                            class="password-toggle absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-800"
+                            data-target="password" aria-label="Show password" aria-pressed="false">&#128065;</button>
+                    </div>
+                    <p id="password-error" class="mt-1 text-sm text-red-600" role="alert"></p>
 
                 </div>
 
@@ -224,9 +232,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         Confirm password
                     </label>
 
-                    <input type="password" id="confirm-password" name="confirm_password" autocomplete="new-password"
-                        required
-                        class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                    <div class="relative">
+                        <input type="password" id="confirm-password" name="confirm_password" autocomplete="new-password"
+                            required
+                            class="w-full rounded-md border border-gray-300 px-3 py-2 pr-11 focus:border-blue-500 focus:outline-none">
+                        <button type="button"
+                            class="password-toggle absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-800"
+                            data-target="confirm-password" aria-label="Show password"
+                            aria-pressed="false">&#128065;</button>
+                    </div>
+                    <p id="confirm-password-error" class="mt-1 text-sm text-red-600" role="alert"></p>
 
                 </div>
 
@@ -270,6 +285,72 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     </main>
 
+    <script>
+        const registerForm = document.getElementById('register-form');
+        const fullName = document.getElementById('full-name');
+        const registerEmail = document.getElementById('email');
+        const registerPassword = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm-password');
+        const fields = [
+            [fullName, document.getElementById('full-name-error')],
+            [registerEmail, document.getElementById('email-error')],
+            [registerPassword, document.getElementById('password-error')],
+            [confirmPassword, document.getElementById('confirm-password-error')]
+        ];
+        const namePattern = /^(?=.{2,100}$)[\p{L}][\p{L}\s.'-]*$/u;
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        const strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+        document.querySelectorAll('.password-toggle').forEach((toggle) => {
+            toggle.addEventListener('click', () => {
+                const field = document.getElementById(toggle.dataset.target);
+                const isHidden = field.type === 'password';
+                field.type = isHidden ? 'text' : 'password';
+                toggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+                toggle.setAttribute('aria-pressed', String(isHidden));
+            });
+        });
+
+        registerForm.addEventListener('submit', (event) => {
+            let isValid = true;
+            fields.forEach(([field, error]) => {
+                error.textContent = '';
+                field.removeAttribute('aria-invalid');
+            });
+
+            if (!namePattern.test(fullName.value.trim())) {
+                document.getElementById('full-name-error').textContent =
+                    'Use a name with 2-100 letters; spaces, apostrophes, periods, and hyphens are allowed.';
+                fullName.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            }
+
+            if (!emailPattern.test(registerEmail.value.trim())) {
+                document.getElementById('email-error').textContent =
+                    'Enter a valid email address, such as name@gmail.com or name@outlook.com.';
+                registerEmail.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            }
+
+            if (!strongPasswordPattern.test(registerPassword.value)) {
+                document.getElementById('password-error').textContent =
+                    'Password must be at least 8 characters and include uppercase, lowercase, and a number.';
+                registerPassword.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            }
+
+            if (confirmPassword.value !== registerPassword.value) {
+                document.getElementById('confirm-password-error').textContent =
+                    'Passwords do not match.';
+                confirmPassword.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    </script>
 </body>
 
 </html>

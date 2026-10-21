@@ -386,9 +386,13 @@ if ($conn !== null) {
                     <div style="display:flex;flex-direction:column;gap:0.3rem;">
                         <label for="org_password" style="font-weight:600;font-size:0.9rem;color:#374151;">Password <span
                                 style="color:#dc2626;">*</span></label>
-                        <input type="password" id="org_password" name="password" autocomplete="new-password" required
-                            placeholder="Minimum 8 characters"
-                            style="padding:0.6rem 0.75rem;border:1px solid #fecaca;border-radius:6px;font-size:0.95rem;width:100%;">
+                        <div style="position:relative;">
+                            <input type="password" id="org_password" name="password" autocomplete="new-password" required
+                                placeholder="Minimum 8 characters"
+                                style="padding:0.6rem 2.75rem 0.6rem 0.75rem;border:1px solid #fecaca;border-radius:6px;font-size:0.95rem;width:100%;">
+                            <button type="button" class="password-toggle" data-target="org_password" aria-label="Show password" aria-pressed="false"
+                                style="position:absolute;right:0;top:0;height:100%;padding:0 0.75rem;border:0;background:transparent;color:#6b7280;cursor:pointer;font-size:1rem;">&#128065;</button>
+                        </div>
                     </div>
 
                     <!-- Confirm Password -->
@@ -396,9 +400,13 @@ if ($conn !== null) {
                         <label for="org_confirm_password"
                             style="font-weight:600;font-size:0.9rem;color:#374151;">Confirm Password <span
                                 style="color:#dc2626;">*</span></label>
-                        <input type="password" id="org_confirm_password" name="confirm_password"
-                            autocomplete="new-password" required placeholder="Repeat password"
-                            style="padding:0.6rem 0.75rem;border:1px solid #fecaca;border-radius:6px;font-size:0.95rem;width:100%;">
+                        <div style="position:relative;">
+                            <input type="password" id="org_confirm_password" name="confirm_password"
+                                autocomplete="new-password" required placeholder="Repeat password"
+                                style="padding:0.6rem 2.75rem 0.6rem 0.75rem;border:1px solid #fecaca;border-radius:6px;font-size:0.95rem;width:100%;">
+                            <button type="button" class="password-toggle" data-target="org_confirm_password" aria-label="Show password" aria-pressed="false"
+                                style="position:absolute;right:0;top:0;height:100%;padding:0 0.75rem;border:0;background:transparent;color:#6b7280;cursor:pointer;font-size:1rem;">&#128065;</button>
+                        </div>
                     </div>
 
                     <!-- Role (display-only, locked to organizer) -->
@@ -452,6 +460,16 @@ if ($conn !== null) {
 
     <script src="../public/js/main.js"></script>
     <script>
+        document.querySelectorAll('.password-toggle').forEach((toggle) => {
+            toggle.addEventListener('click', () => {
+                const field = document.getElementById(toggle.dataset.target);
+                const isHidden = field.type === 'password';
+                field.type = isHidden ? 'text' : 'password';
+                toggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+                toggle.setAttribute('aria-pressed', String(isHidden));
+            });
+        });
+
         // Simple mobile menu toggle script (matches organizer logic)
         const menuToggle = document.querySelector('.menu-toggle');
         const sidebar = document.getElementById('admin-navigation');

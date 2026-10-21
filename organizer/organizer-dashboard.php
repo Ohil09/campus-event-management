@@ -92,6 +92,7 @@ $stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -99,13 +100,15 @@ $stmt->close();
     <title>Organizer Dashboard | Campus Event Management System</title>
     <link rel="stylesheet" href="../public/css/organizer.css">
 </head>
+
 <body>
     <a class="skip-link" href="#main-content">Skip to main content</a>
 
     <header class="site-header">
         <div class="header-container">
             <a href="../index.php" class="site-logo" aria-label="Campus Event Management System Home">CampusEvent</a>
-            <button type="button" class="menu-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="organizer-navigation">☰</button>
+            <button type="button" class="menu-toggle" aria-label="Open navigation menu" aria-expanded="false"
+                aria-controls="organizer-navigation">☰</button>
             <div class="header-user">
                 <span class="welcome-text">Welcome, <?= htmlspecialchars($organizerName, ENT_QUOTES, 'UTF-8') ?></span>
                 <a href="../auth/logout.php" class="logout-link">Logout</a>
@@ -118,9 +121,11 @@ $stmt->close();
             <nav>
                 <h2 class="sidebar-title">Organizer</h2>
                 <ul class="sidebar-menu">
-                    <li><a href="organizer-dashboard.php" class="nav-link active" aria-current="page"><span>Dashboard</span></a></li>
+                    <li><a href="organizer-dashboard.php" class="nav-link active"
+                            aria-current="page"><span>Dashboard</span></a></li>
                     <li><a href="event-management.php" class="nav-link"><span>Manage Events</span></a></li>
-                    <li><a href="../volunteer/volunteer-management.php" class="nav-link"><span>Volunteers</span></a></li>
+                    <li><a href="../volunteer/volunteer-management.php" class="nav-link"><span>Volunteers</span></a>
+                    </li>
                     <li><a href="event-management.php#participants" class="nav-link"><span>Participants</span></a></li>
                 </ul>
             </nav>
@@ -131,7 +136,8 @@ $stmt->close();
                 <div>
                     <p class="breadcrumb">Organizer</p>
                     <h1>Organizer Dashboard</h1>
-                    <p class="page-description">Manage your campus events, registrations and participant activity from one place.</p>
+                    <p class="page-description">Manage your campus events, registrations and participant activity from
+                        one place.</p>
                 </div>
                 <a href="event-management.php#create-event" class="btn btn-primary">Create New Event</a>
             </section>
@@ -139,22 +145,30 @@ $stmt->close();
             <section class="dashboard-stats" aria-labelledby="dashboard-summary-heading">
                 <h2 id="dashboard-summary-heading" class="visually-hidden">Event summary</h2>
                 <article class="stat-card">
-                    <div class="stat-card-header"><h3>Total Events</h3></div>
+                    <div class="stat-card-header">
+                        <h3>Total Events</h3>
+                    </div>
                     <p class="stat-value"><?= $totalEvents ?></p>
                     <p class="stat-description">Events created by you</p>
                 </article>
                 <article class="stat-card">
-                    <div class="stat-card-header"><h3>Upcoming Events</h3></div>
+                    <div class="stat-card-header">
+                        <h3>Upcoming Events</h3>
+                    </div>
                     <p class="stat-value"><?= $upcomingEvents ?></p>
                     <p class="stat-description">Scheduled events</p>
                 </article>
                 <article class="stat-card">
-                    <div class="stat-card-header"><h3>Registrations</h3></div>
+                    <div class="stat-card-header">
+                        <h3>Registrations</h3>
+                    </div>
                     <p class="stat-value"><?= $totalRegistrations ?></p>
                     <p class="stat-description">Total participant registrations</p>
                 </article>
                 <article class="stat-card">
-                    <div class="stat-card-header"><h3>Volunteers</h3></div>
+                    <div class="stat-card-header">
+                        <h3>Volunteers</h3>
+                    </div>
                     <p class="stat-value"><?= $totalVolunteerPositions ?></p>
                     <p class="stat-description">Volunteer positions required</p>
                 </article>
@@ -188,7 +202,7 @@ $stmt->close();
                                     $registrationCount = (int) $event['registration_count'];
                                     $capacity = (int) $event['capacity'];
                                     $isFull = $registrationCount >= $capacity;
-                                ?>
+                                    ?>
                                     <tr>
                                         <td><?= htmlspecialchars($event['title'], ENT_QUOTES, 'UTF-8') ?></td>
                                         <td><?= date('d M Y', strtotime($event['start_datetime'])) ?></td>
@@ -201,11 +215,14 @@ $stmt->close();
                                                 <span class="status status-open">Open</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td><a href="event-management.php?event_id=<?= $eventId ?>" class="table-action">Manage</a></td>
+                                        <td><a href="event-management.php?event_id=<?= $eventId ?>"
+                                                class="table-action">Manage</a></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <tr><td colspan="6">No upcoming published events found. Create an event to get started.</td></tr>
+                                <tr>
+                                    <td colspan="6">No upcoming published events found. Create an event to get started.</td>
+                                </tr>
                             <?php endif; ?>
                         </tbody>
                     </table>
@@ -246,13 +263,15 @@ $stmt->close();
                     <?php if (!empty($recentRegistrations)): ?>
                         <?php foreach ($recentRegistrations as $activity):
                             $registeredAt = strtotime($activity['registered_at']);
-                        ?>
+                            ?>
                             <li class="activity-item">
                                 <div>
                                     <strong>New participant registration</strong>
-                                    <p><?= htmlspecialchars($activity['full_name'], ENT_QUOTES, 'UTF-8') ?> registered for <?= htmlspecialchars($activity['title'], ENT_QUOTES, 'UTF-8') ?></p>
+                                    <p><?= htmlspecialchars($activity['full_name'], ENT_QUOTES, 'UTF-8') ?> registered for
+                                        <?= htmlspecialchars($activity['title'], ENT_QUOTES, 'UTF-8') ?></p>
                                 </div>
-                                <time datetime="<?= date('c', $registeredAt) ?>"><?= date('d M Y, h:i A', $registeredAt) ?></time>
+                                <time
+                                    datetime="<?= date('c', $registeredAt) ?>"><?= date('d M Y, h:i A', $registeredAt) ?></time>
                             </li>
                         <?php endforeach; ?>
                     <?php else: ?>
@@ -273,4 +292,5 @@ $stmt->close();
     </footer>
     <script src="../public/js/main.js"></script>
 </body>
+
 </html>

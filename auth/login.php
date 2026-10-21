@@ -120,17 +120,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php endif; ?>
 
-            <form action="login.php" method="post">
+            <form action="login.php" method="post" id="login-form" novalidate>
                 <div>
                     <label for="email" class="mb-1 block font-medium text-gray-700">Email address</label>
                     <input type="email" id="email" name="email" autocomplete="email" required
                         class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                    <p id="email-error" class="mt-1 text-sm text-red-600" role="alert"></p>
                 </div>
 
                 <div>
                     <label for="password" class="mb-1 block font-medium text-gray-700">Password</label>
-                    <input type="password" id="password" name="password" autocomplete="current-password" required
-                        class="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none">
+                    <div class="relative">
+                        <input type="password" id="password" name="password" autocomplete="current-password" required
+                            class="w-full rounded-md border border-gray-300 px-3 py-2 pr-11 focus:border-blue-500 focus:outline-none">
+                        <button type="button"
+                            class="password-toggle absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-800"
+                            data-target="password" aria-label="Show password" aria-pressed="false">&#128065;</button>
+                    </div>
+                    <p id="password-error" class="mt-1 text-sm text-red-600" role="alert"></p>
                 </div>
 
                 <button type="submit"
@@ -142,6 +149,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </p>
         </section>
     </main>
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const loginEmail = document.getElementById('email');
+        const loginPassword = document.getElementById('password');
+        const loginEmailError = document.getElementById('email-error');
+        const loginPasswordError = document.getElementById('password-error');
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+        document.querySelectorAll('.password-toggle').forEach((toggle) => {
+            toggle.addEventListener('click', () => {
+                const field = document.getElementById(toggle.dataset.target);
+                const isHidden = field.type === 'password';
+                field.type = isHidden ? 'text' : 'password';
+                toggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+                toggle.setAttribute('aria-pressed', String(isHidden));
+            });
+        });
+
+        loginForm.addEventListener('submit', (event) => {
+            let isValid = true;
+            loginEmailError.textContent = '';
+            loginPasswordError.textContent = '';
+            loginEmail.removeAttribute('aria-invalid');
+            loginPassword.removeAttribute('aria-invalid');
+
+            if (!emailPattern.test(loginEmail.value.trim())) {
+                loginEmailError.textContent = 'Enter a valid email address, such as name@gmail.com or name@outlook.com.';
+                loginEmail.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            }
+
+            if (loginPassword.value === '') {
+                loginPasswordError.textContent = 'Password is required.';
+                loginPassword.setAttribute('aria-invalid', 'true');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    </script>
 </body>
 
 </html>
