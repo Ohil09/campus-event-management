@@ -32,7 +32,7 @@ if (isset($_GET['notice']) && $_GET['notice'] !== '') {
 }
 
 /* ---------------------------------------------------------
-   Handle POST Actions (User Status & Attendance)
+   Handle POST Actions (User Status & Event Status)
 --------------------------------------------------------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn !== null) {
     $postedToken = trim((string) ($_POST['csrf_token'] ?? ''));
@@ -57,23 +57,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn !== null) {
                         exit;
                     }
                 }
-            } elseif ($action === 'mark_attendance') {
+            } elseif ($action === 'update_event_status') {
                 $eventId = filter_var($_POST['event_id'] ?? 0, FILTER_VALIDATE_INT);
-                $attendanceData = $_POST['attendance'] ?? []; // Array of user_id => status
-
-                if ($eventId !== false && $eventId > 0 && is_array($attendanceData)) {
-                    $stmt = $conn->prepare(
-                        "INSERT INTO attendance (event_id, user_id, status) VALUES (?, ?, ?)
-                         ON DUPLICATE KEY UPDATE status = VALUES(status)"
-                    );
-                    foreach ($attendanceData as $uid => $status) {
-                        $uid = (int) $uid;
-                        $status = in_array($status, ['present', 'absent'], true) ? $status : 'absent';
-                        $stmt->bind_param('iis', $eventId, $uid, $status);
-                        $stmt->execute();
-                    }
+                $newStatus = trim((string) ($_POST['event_status'] ?? ''));
+                $allowedStatuses = ['draft', 'published', 'cancelled', 'closed'];
+                if ($eventId !== false && $eventId > 0 && in_array($newStatus, $allowedStatuses, true)) {
+                    $stmt = $conn->prepare("UPDATE events SET status = ? WHERE event_id = ?");
+                    $stmt->bind_param('si', $newStatus, $eventId);
+                    $stmt->execute();
                     $stmt->close();
-                    header('Location: administration-attendance-reports.php?notice=' . urlencode('Attendance marked successfully.') . '#attendance');
+                    header('Location: administration-attendance-reports.php?notice=' . urlencode('Event status updated successfully.') . '#events');
                     exit;
                 }
             }
@@ -89,9 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn !== null) {
 --------------------------------------------------------- */
 $allUsers = [];
 $allEvents = [];
-$attendanceEventId = 0;
-$registeredParticipants = [];
-$existingAttendance = [];
 $reportStats = ['avg_rating' => 0, 'total_feedback' => 0, 'avg_attendance' => 0];
 $recentFeedback = [];
 $feedbackEventId = 0;
@@ -125,33 +115,7 @@ if ($conn !== null) {
     $allEvents = $evStmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $evStmt->close();
 
-    // C. Fetch Attendance Data for Selected Event
-    $attendanceEventId = filter_var($_GET['attendance_event_id'] ?? 0, FILTER_VALIDATE_INT);
-    $attendanceEventId = ($attendanceEventId !== false && $attendanceEventId > 0) ? $attendanceEventId : 0;
-
-    if ($attendanceEventId > 0) {
-        // Get registered participants
-        $partStmt = $conn->prepare(
-            "SELECT u.user_id, u.full_name, u.email FROM event_registrations er 
-             INNER JOIN users u ON er.user_id = u.user_id WHERE er.event_id = ? AND er.status = 'registered'"
-        );
-        $partStmt->bind_param('i', $attendanceEventId);
-        $partStmt->execute();
-        $registeredParticipants = $partStmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $partStmt->close();
-
-        // Get existing attendance records
-        $attStmt = $conn->prepare("SELECT user_id, status FROM attendance WHERE event_id = ?");
-        $attStmt->bind_param('i', $attendanceEventId);
-        $attStmt->execute();
-        $result = $attStmt->get_result();
-        while ($row = $result->fetch_assoc()) {
-            $existingAttendance[(int) $row['user_id']] = $row['status'];
-        }
-        $attStmt->close();
-    }
-
-    // D. Fetch Report Statistics
+    // C. Fetch Report Statistics
     $statsSql = "SELECT 
                     (SELECT AVG(rating) FROM feedback) AS avg_rating,
                     (SELECT COUNT(*) FROM feedback) AS total_feedback,
@@ -245,22 +209,6 @@ if ($conn !== null) {
         .sub-nav a:hover {
             background: #fef2f2;
         }
-
-        .attendance-radio {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .attendance-radio label {
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: #4b5563;
-        }
-
-        .attendance-radio input {
-            margin-right: 0.3rem;
-        }
     </style>
 </head>
 
@@ -296,8 +244,7 @@ if ($conn !== null) {
                 <div>
                     <p class="breadcrumb">Administrator</p>
                     <h1>System Management & Reports</h1>
-                    <p class="page-description">Manage users, monitor events, record attendance, and view system
-                        feedback.</p>
+                    <p class="page-description">Manage users, monitor events, and view system feedback.</p>
                 </div>
             </section>
 
@@ -312,8 +259,7 @@ if ($conn !== null) {
             <nav class="sub-nav" aria-label="Section navigation">
                 <a href="#users">User Management</a>
                 <a href="#events">Event Monitoring</a>
-                <a href="#attendance">Attendance</a>
-                <a href="#reports">Reports & Feedback</a>
+                <a href="#reports">Reports &amp; Feedback</a>
             </nav>
 
             <!-- SECTION A: User Management -->
@@ -395,12 +341,18 @@ if ($conn !== null) {
                                 <th>Organizer</th>
                                 <th>Date</th>
                                 <th>Status</th>
+                                <th style="text-align:center;">Change Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (!empty($allEvents)):
                                 foreach ($allEvents as $event):
-                                    $statusClass = match ($event['status']) { 'published' => 'status-open', 'cancelled' => 'status-rejected', default => 'status-pending'};
+                                    $statusClass = match ($event['status']) {
+                                        'published' => 'status-open',
+                                        'cancelled' => 'status-rejected',
+                                        'closed' => 'status-full',
+                                        default => 'status-pending'
+                                    };
                                     ?>
                                     <tr>
                                         <td><strong><?= h($event['title']) ?></strong></td>
@@ -408,91 +360,38 @@ if ($conn !== null) {
                                         <td><?= h(date('d M Y', strtotime($event['start_datetime']))) ?></td>
                                         <td><span class="status <?= $statusClass ?>"><?= h(ucfirst($event['status'])) ?></span>
                                         </td>
+                                        <td style="text-align:center;">
+                                            <form method="post" action="administration-attendance-reports.php#events"
+                                                style="margin:0;display:flex;gap:0.4rem;justify-content:center;align-items:center;">
+                                                <input type="hidden" name="csrf_token"
+                                                    value="<?= h($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="admin_action" value="update_event_status">
+                                                <input type="hidden" name="event_id" value="<?= (int) $event['event_id'] ?>">
+                                                <select name="event_status"
+                                                    style="padding:0.35rem 0.5rem;border:1px solid #fecaca;border-radius:6px;font-size:0.82rem;background:#fff;color:#1f2937;">
+                                                    <?php foreach (['draft', 'published', 'cancelled', 'closed'] as $opt): ?>
+                                                        <option value="<?= $opt ?>" <?= $event['status'] === $opt ? 'selected' : '' ?>>
+                                                            <?= ucfirst($opt) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <button type="submit" class="btn btn-primary"
+                                                    style="padding:0.35rem 0.7rem;font-size:0.82rem;min-height:auto;">Save</button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 <?php endforeach; else: ?>
                                 <tr>
-                                    <td colspan="4" style="text-align:center;padding:1.5rem;">No events match your search.
+                                    <td colspan="5" style="text-align:center;padding:1.5rem;">No events match your search.
                                     </td>
-                                </tr><?php endif; ?>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- SECTION C: Attendance Management -->
-            <section id="attendance" class="dashboard-section">
-                <div class="section-header">
-                    <div>
-                        <h2>Attendance Management</h2>
-                        <p>Mark participant attendance for specific events.</p>
-                    </div>
-                </div>
-                <form method="get" action="administration-attendance-reports.php#attendance"
-                    style="display:flex;gap:1rem;margin-bottom:1.5rem;align-items:flex-end;">
-                    <div style="flex:1;">
-                        <label for="att_event"
-                            style="font-weight:600;font-size:0.9rem;margin-bottom:0.3rem;display:block;">Select
-                            Event</label>
-                        <select id="att_event" name="attendance_event_id" onchange="this.form.submit()"
-                            style="width:100%;padding:0.6rem;border:1px solid #fecaca;border-radius:6px;">
-                            <option value="0">-- Choose an event --</option>
-                            <?php foreach ($allEvents as $ev): ?>
-                                <option value="<?= (int) $ev['event_id'] ?>" <?= $attendanceEventId === (int) $ev['event_id'] ? 'selected' : '' ?>><?= h($ev['title']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </form>
-
-                <?php if ($attendanceEventId > 0): ?>
-                    <?php if (!empty($registeredParticipants)): ?>
-                        <form method="post" action="administration-attendance-reports.php#attendance">
-                            <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token']) ?>">
-                            <input type="hidden" name="admin_action" value="mark_attendance">
-                            <input type="hidden" name="event_id" value="<?= $attendanceEventId ?>">
-                            <div class="table-wrapper">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>Participant</th>
-                                            <th>Email</th>
-                                            <th style="text-align:center;">Attendance Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($registeredParticipants as $p):
-                                            $currentStatus = $existingAttendance[(int) $p['user_id']] ?? 'absent';
-                                            ?>
-                                            <tr>
-                                                <td><strong><?= h($p['full_name']) ?></strong></td>
-                                                <td><?= h($p['email']) ?></td>
-                                                <td style="text-align:center;">
-                                                    <div class="attendance-radio" style="justify-content:center;">
-                                                        <label><input type="radio" name="attendance[<?= (int) $p['user_id'] ?>]"
-                                                                value="present" <?= $currentStatus === 'present' ? 'checked' : '' ?>>
-                                                            Present</label>
-                                                        <label><input type="radio" name="attendance[<?= (int) $p['user_id'] ?>]"
-                                                                value="absent" <?= $currentStatus === 'absent' ? 'checked' : '' ?>>
-                                                            Absent</label>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div style="margin-top:1.5rem;text-align:right;">
-                                <button type="submit" class="btn btn-primary">Save Attendance</button>
-                            </div>
-                        </form>
-                    <?php else: ?>
-                        <p style="color:#6b7280;text-align:center;padding:2rem;">No registered participants found for this
-                            event.</p><?php endif; ?>
-                <?php else: ?>
-                    <p style="color:#6b7280;text-align:center;padding:2rem;">Please select an event above to manage
-                        attendance.</p><?php endif; ?>
-            </section>
-
-            <!-- SECTION D: Reports & Feedback -->
+            <!-- SECTION C: Reports & Feedback -->
             <section id="reports" class="dashboard-section">
                 <div class="section-header">
                     <div>
@@ -534,16 +433,13 @@ if ($conn !== null) {
                     <?php if ($searchTerm !== ''): ?>
                         <input type="hidden" name="event_search" value="<?= h($searchTerm) ?>">
                     <?php endif; ?>
-                    <?php if ($attendanceEventId > 0): ?>
-                        <input type="hidden" name="attendance_event_id" value="<?= $attendanceEventId ?>">
-                    <?php endif; ?>
                     <div style="flex:1;min-width:200px;">
                         <label for="feedback_event"
                             style="font-weight:600;font-size:0.9rem;margin-bottom:0.3rem;display:block;">Select
                             Event</label>
                         <select id="feedback_event" name="feedback_event_id" onchange="this.form.submit()"
                             style="width:100%;padding:0.6rem;border:1px solid #fecaca;border-radius:6px;">
-                            <option value="0">-- All Events (Recent 10) --</option>
+                            <option value="0" selected disabled>-- All Events --</option>
                             <?php foreach ($allEvents as $ev): ?>
                                 <option value="<?= (int) $ev['event_id'] ?>" <?= $feedbackEventId === (int) $ev['event_id'] ? 'selected' : '' ?>><?= h($ev['title']) ?></option>
                             <?php endforeach; ?>
@@ -557,10 +453,12 @@ if ($conn !== null) {
 
                 <?php if ($feedbackEventId > 0 && $selectedEventTitle !== ''): ?>
                     <!-- Per-event average score card -->
-                    <div style="background:linear-gradient(135deg,#fef2f2,#fff);border:1px solid #fecaca;border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+                    <div
+                        style="background:linear-gradient(135deg,#fef2f2,#fff);border:1px solid #fecaca;border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
                         <div>
                             <p style="font-size:0.85rem;color:#6b7280;margin:0 0 0.2rem;">Average Score for</p>
-                            <p style="font-weight:700;font-size:1rem;color:#1f2937;margin:0;"><?= h($selectedEventTitle) ?></p>
+                            <p style="font-weight:700;font-size:1rem;color:#1f2937;margin:0;"><?= h($selectedEventTitle) ?>
+                            </p>
                         </div>
                         <div style="margin-left:auto;text-align:center;">
                             <?php
@@ -579,9 +477,11 @@ if ($conn !== null) {
                             echo $stars;
                             ?>
                             <p style="font-size:1.8rem;font-weight:800;color:#991b1b;margin:0.2rem 0 0;">
-                                <?= $eventAvgRating ?> <span style="font-size:1rem;font-weight:500;color:#6b7280;">/ 5</span>
+                                <?= $eventAvgRating ?> <span style="font-size:1rem;font-weight:500;color:#6b7280;">/
+                                    5</span>
                             </p>
-                            <p style="font-size:0.8rem;color:#6b7280;margin:0;"><?= $eventFeedbackCount ?> response<?= $eventFeedbackCount !== 1 ? 's' : '' ?></p>
+                            <p style="font-size:0.8rem;color:#6b7280;margin:0;"><?= $eventFeedbackCount ?>
+                                response<?= $eventFeedbackCount !== 1 ? 's' : '' ?></p>
                         </div>
                     </div>
 
@@ -641,7 +541,8 @@ if ($conn !== null) {
                                         </tr>
                                     <?php endforeach; else: ?>
                                     <tr>
-                                        <td colspan="5" style="text-align:center;padding:1.5rem;">No feedback submitted yet.</td>
+                                        <td colspan="5" style="text-align:center;padding:1.5rem;">No feedback submitted yet.
+                                        </td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
