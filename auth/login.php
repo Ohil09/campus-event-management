@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         exit;
 
                     case 'administrator':
-                        header('Location: ../admin/');
+                        header('Location: ../admin/admin-dashboard.php');
                         exit;
 
                     default:

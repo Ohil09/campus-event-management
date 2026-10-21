@@ -31,7 +31,6 @@ textarea {
     font: inherit;
 }
 
-
 /* =========================================================
    ACCESSIBILITY
 ========================================================= */
@@ -67,7 +66,6 @@ textarea {
     outline: 3px solid #f4b400;
     outline-offset: 3px;
 }
-
 
 /* =========================================================
    HEADER
@@ -120,7 +118,6 @@ textarea {
     background-color: rgba(255, 255, 255, 0.12);
 }
 
-
 /* Mobile menu button */
 
 .menu-toggle {
@@ -131,7 +128,6 @@ textarea {
     cursor: pointer;
     font-size: 1.5rem;
 }
-
 
 /* =========================================================
    PAGE LAYOUT
@@ -145,7 +141,6 @@ textarea {
     grid-template-columns: 240px 1fr;
     min-height: calc(100vh - 70px);
 }
-
 
 /* =========================================================
    SIDEBAR
@@ -200,7 +195,6 @@ textarea {
     color: #fff;
 }
 
-
 /* =========================================================
    MAIN CONTENT
 ========================================================= */
@@ -209,7 +203,6 @@ textarea {
     padding: 2rem;
     min-width: 0;
 }
-
 
 /* =========================================================
    PAGE HEADING
@@ -241,7 +234,6 @@ textarea {
     color: #667085;
     max-width: 700px;
 }
-
 
 /* =========================================================
    BUTTONS
@@ -278,7 +270,6 @@ textarea {
 .btn-primary:hover {
     background-color: #0f2c48;
 }
-
 
 /* =========================================================
    DASHBOARD STAT CARDS
@@ -318,7 +309,6 @@ textarea {
     color: #7a8491;
     font-size: 0.85rem;
 }
-
 
 /* =========================================================
    DASHBOARD SECTIONS
@@ -364,7 +354,6 @@ textarea {
 .text-link:hover {
     text-decoration: underline;
 }
-
 
 /* =========================================================
    TABLE
@@ -416,7 +405,6 @@ tbody tr:hover {
     text-decoration: underline;
 }
 
-
 /* =========================================================
    STATUS BADGES
 ========================================================= */
@@ -441,7 +429,6 @@ tbody tr:hover {
     background-color: #fdecec;
     color: #a61b1b;
 }
-
 
 /* =========================================================
    QUICK ACTIONS
@@ -486,7 +473,6 @@ tbody tr:hover {
     font-size: 0.88rem;
 }
 
-
 /* =========================================================
    RECENT ACTIVITY
 ========================================================= */
@@ -527,7 +513,6 @@ tbody tr:hover {
     white-space: nowrap;
 }
 
-
 /* =========================================================
    FOOTER
 ========================================================= */
@@ -541,7 +526,6 @@ tbody tr:hover {
 
     font-size: 0.85rem;
 }
-
 
 /* =========================================================
    RESPONSIVE — TABLET
@@ -565,7 +549,6 @@ tbody tr:hover {
         grid-template-columns: 1fr;
     }
 }
-
 
 /* =========================================================
    RESPONSIVE — MOBILE
@@ -656,7 +639,6 @@ tbody tr:hover {
     }
 }
 
-
 /* =========================================================
    REDUCED MOTION
 ========================================================= */
@@ -679,7 +661,6 @@ tbody tr:hover {
 /* =========================================================
    EVENT MANAGEMENT PAGE
 ========================================================= */
-
 
 /* =========================================================
    FORM MESSAGES (Success / Error)
@@ -710,7 +691,6 @@ tbody tr:hover {
     border-color: #86efac;
     color: #166534;
 }
-
 
 /* =========================================================
    EVENT FORM
@@ -766,7 +746,6 @@ tbody tr:hover {
     min-height: 120px;
 }
 
-
 /* Input focus */
 
 .form-group input:focus,
@@ -777,7 +756,6 @@ tbody tr:hover {
     box-shadow: 0 0 0 3px rgba(47, 107, 154, 0.15);
 }
 
-
 /* Invalid fields */
 
 .form-group input:invalid:not(:placeholder-shown),
@@ -785,7 +763,6 @@ tbody tr:hover {
 .form-group textarea:invalid:not(:placeholder-shown) {
     border-color: #b42318;
 }
-
 
 /* =========================================================
    FORM ACTIONS
@@ -803,7 +780,6 @@ tbody tr:hover {
     border-top: 1px solid #e5e7eb;
 }
 
-
 /* Secondary Button */
 
 .btn-secondary {
@@ -814,7 +790,6 @@ tbody tr:hover {
 .btn-secondary:hover {
     background-color: #dce3ea;
 }
-
 
 /* =========================================================
    EVENT FILTERS
@@ -833,7 +808,6 @@ tbody tr:hover {
     border-radius: 8px;
 }
 
-
 /* =========================================================
    PARTICIPANT SECTION
 ========================================================= */
@@ -842,7 +816,6 @@ tbody tr:hover {
     max-width: 420px;
     margin-bottom: 1.5rem;
 }
-
 
 /* =========================================================
    ACTION BUTTONS INSIDE TABLES
@@ -861,7 +834,6 @@ button.table-action {
 button.table-action:hover {
     text-decoration: underline;
 }
-
 
 /* =========================================================
    FORM RESPONSIVE — TABLET
@@ -882,7 +854,6 @@ button.table-action:hover {
         grid-template-columns: 1fr;
     }
 }
-
 
 /* =========================================================
    FORM RESPONSIVE — MOBILE
