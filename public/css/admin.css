@@ -577,28 +577,6 @@ button,
     background-color: #fef2f2;
 }
 
-.attendance-radio {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.attendance-radio label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    color: #4b5563;
-    font-size: 0.9rem;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.attendance-radio input {
-    margin: 0;
-}
-
 /* 12. Footer */
 .site-footer {
     padding: 1rem;
@@ -839,11 +817,6 @@ button,
     .main-content form[method="get"] button,
     .main-content form[method="get"] .btn {
         width: 100%;
-    }
-
-    .attendance-radio {
-        justify-content: flex-start;
-        gap: 0.65rem;
     }
 
     .site-footer {

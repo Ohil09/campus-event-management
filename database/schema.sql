@@ -7,6 +7,8 @@ CREATE DATABASE IF NOT EXISTS event_management_db;
 
 USE event_management_db;
 
+DROP TABLE IF EXISTS attendance;
+
 
 -- =========================================================
 -- USERS
@@ -198,33 +200,6 @@ CREATE TABLE volunteer_assignments (
         FOREIGN KEY (application_id)
         REFERENCES volunteer_applications(application_id)
 );
-
-CREATE TABLE attendance (
-    attendance_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-
-    event_id INT UNSIGNED NOT NULL,
-
-    user_id INT UNSIGNED NOT NULL,
-
-    status ENUM(
-        'present',
-        'absent'
-    ) NOT NULL DEFAULT 'present',
-
-    marked_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_attendance_event
-        FOREIGN KEY (event_id)
-        REFERENCES events(event_id),
-
-    CONSTRAINT fk_attendance_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(user_id),
-
-    CONSTRAINT uq_attendance_event_user
-        UNIQUE (event_id, user_id)
-);
-
 
 CREATE TABLE feedback (
     feedback_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

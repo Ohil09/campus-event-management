@@ -30,6 +30,7 @@ $formError = '';
 --------------------------------------------------------- */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $postedToken   = trim((string) ($_POST['csrf_token'] ?? ''));
+    $action        = (string) ($_POST['action'] ?? 'apply');
     $opportunityId = filter_var($_POST['opportunity_id'] ?? 0, FILTER_VALIDATE_INT);
 
     if (!hash_equals((string) $_SESSION['csrf_token'], $postedToken)) {
@@ -38,6 +39,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $formError = 'Invalid volunteer opportunity selected.';
     } elseif ($conn === null) {
         $formError = 'Database connection failed. Please ensure MariaDB is running.';
+    } elseif ($action === 'feedback') {
+        $rating   = filter_var($_POST['rating'] ?? null, FILTER_VALIDATE_INT);
+        $comments = trim((string) ($_POST['feedback'] ?? ''));
+
+        if ($rating === false || $rating === null || $rating < 1 || $rating > 5 ||
+            $comments === '' || mb_strlen($comments) > 2000) {
+            $formError = 'Choose a rating and enter comments (up to 2000 characters).';
+        } else {
+            try {
+                $checkStmt = $conn->prepare(
+                    "SELECT va.application_id
+                     FROM volunteer_applications va
+                     INNER JOIN volunteer_opportunities vo ON va.opportunity_id = vo.opportunity_id
+                     INNER JOIN volunteer_assignments vasn ON vasn.application_id = va.application_id
+                     INNER JOIN events e ON vo.event_id = e.event_id
+                     LEFT JOIN feedback f ON f.event_id = e.event_id AND f.user_id = va.user_id
+                     WHERE va.opportunity_id = ? AND va.user_id = ?
+                       AND vasn.status IN ('assigned', 'completed')
+                       AND (e.status = 'closed' OR e.end_datetime < NOW())
+                       AND f.feedback_id IS NULL
+                     LIMIT 1"
+                );
+                $checkStmt->bind_param('ii', $opportunityId, $studentId);
+                $checkStmt->execute();
+                $eligible = $checkStmt->get_result()->num_rows > 0;
+                $checkStmt->close();
+
+                if (!$eligible) {
+                    $formError = 'Feedback is available after an assigned volunteer event ends.';
+                } else {
+                    $insertStmt = $conn->prepare(
+                        'INSERT INTO feedback (event_id, user_id, rating, comment)
+                         SELECT vo.event_id, ?, ?, ?
+                         FROM volunteer_opportunities vo
+                         WHERE vo.opportunity_id = ?'
+                    );
+                    $insertStmt->bind_param('iisi', $studentId, $rating, $comments, $opportunityId);
+                    $insertStmt->execute();
+                    $insertStmt->close();
+                    $notice = 'Feedback submitted successfully.';
+                }
+            } catch (Throwable $e) {
+                error_log('Volunteer feedback failed: ' . $e->getMessage());
+                $formError = 'Could not submit feedback. Please try again.';
+            }
+        }
     } else {
         // Check that the opportunity exists and event is published
         $checkStmt = $conn->prepare(
@@ -118,15 +165,18 @@ if ($conn !== null) {
     $myStmt = $conn->prepare(
         "SELECT va.application_id, va.opportunity_id, va.status AS app_status, va.applied_at,
                 vo.role_name, vo.event_id,
-                e.title AS event_title,
+                e.title AS event_title, e.description AS event_description,
+                e.start_datetime, e.end_datetime, e.venue, e.status AS event_status,
                 COALESCE(
                     (SELECT vasn.status FROM volunteer_assignments vasn
                      WHERE vasn.application_id = va.application_id LIMIT 1),
                     ''
-                ) AS assignment_status
+                ) AS assignment_status,
+                f.rating AS feedback_rating, f.comment AS feedback_comment
          FROM volunteer_applications va
          INNER JOIN volunteer_opportunities vo ON va.opportunity_id = vo.opportunity_id
          INNER JOIN events e ON vo.event_id = e.event_id
+         LEFT JOIN feedback f ON f.event_id = e.event_id AND f.user_id = va.user_id
          WHERE va.user_id = ?
          ORDER BY va.applied_at DESC"
     );
@@ -289,19 +339,59 @@ foreach ($myApplications as $app) {
                             $appStatusVal = (string) $app['app_status'];
                             $assignStatus = (string) $app['assignment_status'];
                             $statusClass  = 'status-' . $appStatusVal;
+                            $eventEnded   = $app['event_status'] === 'closed' || strtotime($app['end_datetime']) < time();
                         ?>
                             <div class="my-application-item">
                                 <div class="my-application-info">
-                                    <strong><?= h($app['role_name']) ?></strong>
-                                    <span><?= h($app['event_title']) ?> &bull; Applied <?= h(date('d M Y', strtotime($app['applied_at']))) ?></span>
+                                    <strong><?= h($app['role_name']) ?> &mdash; <?= h($app['event_title']) ?></strong>
+                                    <span><?= h(date('d M Y, h:i A', strtotime($app['start_datetime']))) ?> to <?= h(date('d M Y, h:i A', strtotime($app['end_datetime']))) ?> &bull; <?= h($app['venue']) ?></span>
+                                    <span><?= h($app['event_description']) ?></span>
                                 </div>
                                 <div class="my-application-badges">
                                     <span class="status <?= h($statusClass) ?>"><?= h(ucfirst($appStatusVal)) ?></span>
                                     <?php if ($assignStatus !== ''): ?>
                                         <span class="status status-<?= h($assignStatus) ?>"><?= h(ucfirst($assignStatus)) ?></span>
                                     <?php endif; ?>
+                                    <?php if ($eventEnded): ?>
+                                        <span class="status status-full">Event Closed</span>
+                                    <?php endif; ?>
                                 </div>
                             </div>
+                            <?php if (
+                                in_array($assignStatus, ['assigned', 'completed'], true) &&
+                                ($app['event_status'] === 'closed' || strtotime($app['end_datetime']) < time()) &&
+                                $app['feedback_rating'] === null
+                            ): ?>
+                                <form method="post" class="event-form" style="margin:1rem 0 1.25rem; padding:1rem; background:#f8fafa; border:1px solid #e1e6eb; border-radius:8px;">
+                                    <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token']) ?>">
+                                    <input type="hidden" name="action" value="feedback">
+                                    <input type="hidden" name="opportunity_id" value="<?= (int) $app['opportunity_id'] ?>">
+                                    <h3 style="grid-column:1 / -1; color:#0d7377; font-size:1rem;">Feedback for: <?= h($app['event_title']) ?></h3>
+                                    <div class="form-group">
+                                        <label for="vol-rating-<?= (int) $app['opportunity_id'] ?>">Rating</label>
+                                        <select id="vol-rating-<?= (int) $app['opportunity_id'] ?>" name="rating" required>
+                                            <option value="">Select rating</option>
+                                            <option value="5">5 - Excellent</option>
+                                            <option value="4">4 - Very good</option>
+                                            <option value="3">3 - Good</option>
+                                            <option value="2">2 - Fair</option>
+                                            <option value="1">1 - Poor</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="vol-feedback-<?= (int) $app['opportunity_id'] ?>">Comments</label>
+                                        <textarea id="vol-feedback-<?= (int) $app['opportunity_id'] ?>" name="feedback" rows="3" maxlength="2000" placeholder="Share your feedback..." required></textarea>
+                                    </div>
+                                    <div class="form-actions" style="border:0;padding:0;">
+                                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                                    </div>
+                                </form>
+                            <?php elseif ($app['feedback_rating'] !== null): ?>
+                                <div style="margin:1rem 0 1.25rem; padding:1rem; background:#f0fdf4; border:1px solid #86efac; border-radius:8px;">
+                                    <strong>Feedback submitted:</strong> <?= (int) $app['feedback_rating'] ?> / 5
+                                    <p><?= h($app['feedback_comment']) ?></p>
+                                </div>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>

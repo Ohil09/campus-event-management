@@ -478,16 +478,6 @@ button.table-action:hover {
     color: #6b7280;
 }
 
-.status-present {
-    background-color: #d1fae5;
-    color: #065f46;
-}
-
-.status-absent {
-    background-color: #fee2e2;
-    color: #991b1b;
-}
-
 /* =========================================================
    QUICK ACTIONS
 ========================================================= */

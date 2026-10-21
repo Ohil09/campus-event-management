@@ -327,7 +327,6 @@ event_registrations
 volunteer_opportunities
 volunteer_applications
 volunteer_assignments
-attendance
 feedback
 ```
 
@@ -352,7 +351,6 @@ SHOW TABLES;
 You should see:
 
 ```text
-attendance
 categories
 event_registrations
 events
@@ -387,7 +385,6 @@ It populates:
 - Volunteer opportunities
 - Volunteer applications
 - Volunteer assignments
-- Attendance
 - Feedback
 
 ---
@@ -773,7 +770,7 @@ Campus Event & Volunteer Management System
 │   └── Volunteer Management
 │
 └── Module 5
-    └── Administration, Attendance & Feedback
+    └── Administration & Feedback
 ```
 
 Authentication is shared by all modules.

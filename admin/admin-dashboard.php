@@ -239,9 +239,9 @@ if ($conn !== null) {
                 <ul class="sidebar-menu">
                     <li><a href="admin-dashboard.php" class="nav-link active" aria-current="page"><span
                                 aria-hidden="true">&#128202;</span><span>Dashboard</span></a></li>
-                    <li><a href="administration-attendance-reports.php" class="nav-link"><span
+                    <li><a href="administration-reports.php" class="nav-link"><span
                                 aria-hidden="true">&#128101;</span><span>Users & Events</span></a></li>
-                    <li><a href="administration-attendance-reports.php#reports" class="nav-link"><span
+                    <li><a href="administration-reports.php#reports" class="nav-link"><span
                                 aria-hidden="true">&#128200;</span><span>Reports & Feedback</span></a></li>
                 </ul>
             </nav>
@@ -431,15 +431,15 @@ if ($conn !== null) {
                     </div>
                 </div>
                 <div class="quick-actions">
-                    <a href="administration-attendance-reports.php#users" class="action-card">
+                    <a href="administration-reports.php#users" class="action-card">
                         <h3>Manage Users</h3>
                         <p>View, activate, or deactivate user accounts.</p>
                     </a>
-                    <a href="administration-attendance-reports.php#events" class="action-card">
+                    <a href="administration-reports.php#events" class="action-card">
                         <h3>Monitor Events</h3>
                         <p>View event statuses and details.</p>
                     </a>
-                    <a href="administration-attendance-reports.php#reports" class="action-card">
+                    <a href="administration-reports.php#reports" class="action-card">
                         <h3>View Reports</h3>
                         <p>Analyze feedback and system participation data.</p>
                     </a>

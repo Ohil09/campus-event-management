@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn !== null) {
                         $stmt->bind_param('i', $userId);
                         $stmt->execute();
                         $stmt->close();
-                        header('Location: administration-attendance-reports.php?notice=' . urlencode('User status updated successfully.') . '#users');
+                        header('Location: administration-reports.php?notice=' . urlencode('User status updated successfully.') . '#users');
                         exit;
                     }
                 }
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn !== null) {
                     $stmt->bind_param('si', $newStatus, $eventId);
                     $stmt->execute();
                     $stmt->close();
-                    header('Location: administration-attendance-reports.php?notice=' . urlencode('Event status updated successfully.') . '#events');
+                    header('Location: administration-reports.php?notice=' . urlencode('Event status updated successfully.') . '#events');
                     exit;
                 }
             }
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn !== null) {
 --------------------------------------------------------- */
 $allUsers = [];
 $allEvents = [];
-$reportStats = ['avg_rating' => 0, 'total_feedback' => 0, 'avg_attendance' => 0];
+$reportStats = ['avg_rating' => 0, 'total_feedback' => 0];
 $recentFeedback = [];
 $feedbackEventId = 0;
 $eventFeedback = [];
@@ -118,17 +118,12 @@ if ($conn !== null) {
     // C. Fetch Report Statistics
     $statsSql = "SELECT 
                     (SELECT AVG(rating) FROM feedback) AS avg_rating,
-                    (SELECT COUNT(*) FROM feedback) AS total_feedback,
-                    (SELECT COUNT(*) FROM attendance WHERE status = 'present') AS total_present,
-                    (SELECT COUNT(*) FROM attendance) AS total_attendance_records";
+                    (SELECT COUNT(*) FROM feedback) AS total_feedback";
     $statsRes = $conn->query($statsSql);
     if ($statsRes) {
         $row = $statsRes->fetch_assoc();
         $reportStats['avg_rating'] = $row['avg_rating'] ? round((float) $row['avg_rating'], 1) : 0;
         $reportStats['total_feedback'] = (int) $row['total_feedback'];
-        $totalPresent = (int) $row['total_present'];
-        $totalRecords = (int) $row['total_attendance_records'];
-        $reportStats['avg_attendance'] = $totalRecords > 0 ? round(($totalPresent / $totalRecords) * 100) : 0;
     }
 
     // Fetch Recent Feedback (all events)
@@ -233,7 +228,7 @@ if ($conn !== null) {
                 <ul class="sidebar-menu">
                     <li><a href="admin-dashboard.php" class="nav-link"><span>&#128202;</span><span>Dashboard</span></a>
                     </li>
-                    <li><a href="administration-attendance-reports.php" class="nav-link active"
+                    <li><a href="administration-reports.php" class="nav-link active"
                             aria-current="page"><span>&#128101;</span><span>System Management</span></a></li>
                 </ul>
             </nav>
@@ -324,13 +319,13 @@ if ($conn !== null) {
                         <p>Overview of all campus events.</p>
                     </div>
                 </div>
-                <form method="get" action="administration-attendance-reports.php#events"
+                <form method="get" action="administration-reports.php#events"
                     style="display:flex;gap:1rem;margin-bottom:1rem;">
                     <input type="search" name="event_search" placeholder="Search events by title..."
                         value="<?= h($searchTerm) ?>"
                         style="flex:1;padding:0.6rem;border:1px solid #fecaca;border-radius:6px;">
                     <button type="submit" class="btn btn-primary" style="padding:0.6rem 1.2rem;">Search</button>
-                    <?php if ($searchTerm !== ''): ?><a href="administration-attendance-reports.php#events"
+                    <?php if ($searchTerm !== ''): ?><a href="administration-reports.php#events"
                             class="btn btn-secondary" style="padding:0.6rem 1.2rem;">Clear</a><?php endif; ?>
                 </form>
                 <div class="table-wrapper">
@@ -361,7 +356,7 @@ if ($conn !== null) {
                                         <td><span class="status <?= $statusClass ?>"><?= h(ucfirst($event['status'])) ?></span>
                                         </td>
                                         <td style="text-align:center;">
-                                            <form method="post" action="administration-attendance-reports.php#events"
+                                            <form method="post" action="administration-reports.php#events"
                                                 style="margin:0;display:flex;gap:0.4rem;justify-content:center;align-items:center;">
                                                 <input type="hidden" name="csrf_token"
                                                     value="<?= h($_SESSION['csrf_token']) ?>">
@@ -416,18 +411,11 @@ if ($conn !== null) {
                         <p class="stat-value"><?= $reportStats['total_feedback'] ?></p>
                         <p class="stat-description">Submissions received</p>
                     </article>
-                    <article class="stat-card">
-                        <div class="stat-card-header">
-                            <h3>Avg Attendance</h3>
-                        </div>
-                        <p class="stat-value"><?= $reportStats['avg_attendance'] ?>%</p>
-                        <p class="stat-description">Present rate</p>
-                    </article>
                 </div>
 
                 <!-- Per-event feedback filter -->
                 <h3 style="color:#991b1b;margin-bottom:1rem;font-size:1.1rem;">Feedback by Event</h3>
-                <form method="get" action="administration-attendance-reports.php#reports"
+                <form method="get" action="administration-reports.php#reports"
                     style="display:flex;gap:1rem;margin-bottom:1.5rem;align-items:flex-end;flex-wrap:wrap;">
                     <!-- Preserve other GET params so other sections are not disrupted -->
                     <?php if ($searchTerm !== ''): ?>
@@ -446,7 +434,7 @@ if ($conn !== null) {
                         </select>
                     </div>
                     <?php if ($feedbackEventId > 0): ?>
-                        <a href="administration-attendance-reports.php#reports" class="btn btn-secondary"
+                        <a href="administration-reports.php#reports" class="btn btn-secondary"
                             style="padding:0.6rem 1.2rem;">Clear</a>
                     <?php endif; ?>
                 </form>

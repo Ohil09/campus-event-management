@@ -35,11 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Passwords do not match.';
     }
 
-    $allowedRoles = [
-        'student',
-        'organizer',
-        'administrator'
-    ];
+    $allowedRoles = ['student'];
 
     if (!in_array($role, $allowedRoles, true)) {
         $errors[] = 'Invalid role selected.';
@@ -236,17 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <select id="role" name="role" required
                         class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none">
-                        <option value="student" selected>
-                            Student
-                        </option>
-
-                        <option value="organizer">
-                            Organizer
-                        </option>
-
-                        <option value="administrator">
-                            Administrator
-                        </option>
+                        <option value="student" selected>Student</option>
                     </select>
 
                 </div>

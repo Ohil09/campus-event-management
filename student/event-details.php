@@ -6,6 +6,7 @@ require_role('student');
 require_once __DIR__ . '/../config/database.php';
 
 $studentName = (string) ($_SESSION['full_name'] ?? 'Student');
+$studentId   = (int) ($_SESSION['user_id'] ?? 0);
 
 function h(mixed $value): string {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
@@ -18,13 +19,24 @@ if ($id && $id > 0) {
     $stmt = $conn->prepare(
         "SELECT e.event_id, e.title, e.description, e.start_datetime, e.end_datetime,
                 e.venue, e.capacity, e.registration_deadline, e.status,
-                c.category_name
+                c.category_name, er.status AS registration_status,
+                f.feedback_id
          FROM events e
          INNER JOIN categories c ON e.category_id = c.category_id
-         WHERE e.event_id = ? AND e.status = 'published' AND c.status = 'active'
-               AND e.start_datetime >= NOW()"
+         LEFT JOIN event_registrations er
+                ON er.event_id = e.event_id AND er.user_id = ?
+         LEFT JOIN feedback f
+                ON f.event_id = e.event_id AND f.user_id = ?
+         WHERE e.event_id = ? AND e.status IN ('published', 'closed') AND c.status = 'active'
+               AND (
+                   e.end_datetime >= NOW()
+                   OR EXISTS (
+                       SELECT 1 FROM event_registrations er
+                       WHERE er.event_id = e.event_id AND er.user_id = ?
+                   )
+               )"
     );
-    $stmt->bind_param('i', $id);
+    $stmt->bind_param('iiii', $studentId, $studentId, $id, $studentId);
     $stmt->execute();
     $event = $stmt->get_result()->fetch_assoc() ?: null;
     $stmt->close();
@@ -33,7 +45,9 @@ if ($id && $id > 0) {
 // Allow registration only while the deadline has not passed.
 $registrationOpen = false;
 if ($event) {
-    $registrationOpen = strtotime($event['registration_deadline']) >= time();
+    $registrationOpen = $event['status'] === 'published'
+        && strtotime($event['end_datetime']) >= time()
+        && strtotime($event['registration_deadline']) >= time();
 }
 ?>
 <!DOCTYPE html>
@@ -143,7 +157,9 @@ if ($event) {
                                 <tr>
                                     <th scope="row">Status</th>
                                     <td>
-                                        <?php if ($registrationOpen): ?>
+                                        <?php if (strtotime($event['end_datetime']) < time() || $event['status'] === 'closed'): ?>
+                                            <span class="status status-full">Event Closed</span>
+                                        <?php elseif ($registrationOpen): ?>
                                             <span class="status status-open">Registration Open</span>
                                         <?php else: ?>
                                             <span class="status status-full">Registration Closed</span>
@@ -154,7 +170,22 @@ if ($event) {
                         </table>
                     </div>
 
-                    <?php if (!$registrationOpen): ?>
+                    <?php if (strtotime($event['end_datetime']) < time() || $event['status'] === 'closed'): ?>
+                        <div class="form-message form-message-warning" style="margin-top:1rem;">
+                            <?php if (
+                                $event['registration_status'] === 'registered' &&
+                                ($event['status'] === 'closed' || strtotime($event['end_datetime']) < time()) &&
+                                $event['feedback_id'] === null
+                            ): ?>
+                                This event has ended. Share your experience by submitting feedback.
+                                <a href="my-events.php#feedback-card-<?= (int) $event['event_id'] ?>" class="btn btn-primary" style="margin-left:0.75rem;">Give Feedback</a>
+                            <?php elseif ($event['feedback_id'] !== null): ?>
+                                This event has ended and your feedback has been submitted.
+                            <?php else: ?>
+                                This event has ended. Feedback is available to registered participants.
+                            <?php endif; ?>
+                        </div>
+                    <?php elseif (!$registrationOpen): ?>
                         <div class="form-message form-message-warning" style="margin-top:1rem;">
                             The registration deadline has passed for this event.
                         </div>

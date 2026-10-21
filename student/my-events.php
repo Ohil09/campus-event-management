@@ -62,7 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     "SELECT er.registration_id FROM event_registrations er
                      JOIN events e ON e.event_id = er.event_id
                      WHERE er.event_id = ? AND er.user_id = ?
-                       AND er.status = 'registered' AND e.end_datetime < NOW()
+                       AND er.status = 'registered'
+                       AND (e.status = 'closed' OR e.end_datetime < NOW())
                      LIMIT 1"
                 );
                 $check->bind_param('ii', $eventId, $userId);
@@ -95,11 +96,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fetch this student's registrations.
 $stmt = $conn->prepare(
     "SELECT e.event_id, e.title, e.description, e.start_datetime, e.end_datetime,
-            e.venue, er.status AS registration_status,
-            a.status AS attendance_status
+            e.venue, e.status AS event_status, er.status AS registration_status,
+            f.rating AS feedback_rating, f.comment AS feedback_comment
      FROM event_registrations er
      JOIN events e ON e.event_id = er.event_id
-     LEFT JOIN attendance a ON a.event_id = er.event_id AND a.user_id = er.user_id
+     LEFT JOIN feedback f ON f.event_id = er.event_id AND f.user_id = er.user_id
      WHERE er.user_id = ?
      ORDER BY e.start_datetime DESC"
 );
@@ -148,7 +149,7 @@ $stmt->close();
                 <div>
                     <p class="breadcrumb">Student / My Events</p>
                     <h1>My Events &amp; Participation</h1>
-                    <p class="page-description">View your registrations, attendance, and submit event feedback.</p>
+                    <p class="page-description">View your registrations and submit event feedback.</p>
                 </div>
                 <a href="index.php" class="btn btn-primary">Discover Events</a>
             </section>
@@ -186,29 +187,29 @@ $stmt->close();
                                     <th scope="col">Time</th>
                                     <th scope="col">Venue</th>
                                     <th scope="col">Registration</th>
-                                    <th scope="col">Attendance</th>
                                     <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($events as $event):
                                     $regStatus   = (string) $event['registration_status'];
-                                    $attendance   = $event['attendance_status'];
                                     $isPast       = strtotime($event['end_datetime']) < time();
                                     $isUpcoming   = strtotime($event['start_datetime']) > time();
                                     $regClass     = $regStatus === 'registered' ? 'status-registered' : 'status-cancelled';
+                                    $eventClosed  = $event['event_status'] === 'closed' || $isPast;
                                 ?>
                                     <tr>
                                         <td><strong><?= h($event['title']) ?></strong></td>
                                         <td><?= date('d M Y', strtotime($event['start_datetime'])) ?></td>
                                         <td><?= date('h:i A', strtotime($event['start_datetime'])) ?> – <?= date('h:i A', strtotime($event['end_datetime'])) ?></td>
                                         <td><?= h($event['venue']) ?></td>
-                                        <td><span class="status <?= h($regClass) ?>"><?= h(ucfirst($regStatus)) ?></span></td>
                                         <td>
-                                            <?php if ($attendance !== null): ?>
-                                                <span class="status status-<?= h($attendance) ?>"><?= h(ucfirst($attendance)) ?></span>
+                                            <?php if ($regStatus === 'cancelled'): ?>
+                                                <span class="status status-cancelled">Cancelled</span>
+                                            <?php elseif ($eventClosed): ?>
+                                                <span class="status status-full">Closed</span>
                                             <?php else: ?>
-                                                <span style="color:#7a8491;font-size:0.85rem;">Not recorded</span>
+                                                <span class="status <?= h($regClass) ?>"><?= h(ucfirst($regStatus)) ?></span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
@@ -234,7 +235,8 @@ $stmt->close();
             // Show feedback forms for past events that student is registered for
             $pastEvents = array_filter($events, function($e) {
                 return $e['registration_status'] === 'registered'
-                    && strtotime($e['end_datetime']) < time();
+                    && ($e['event_status'] === 'closed' || strtotime($e['end_datetime']) < time())
+                    && $e['feedback_rating'] === null;
             });
             ?>
             <?php if (!empty($pastEvents)): ?>
@@ -247,8 +249,8 @@ $stmt->close();
                     </div>
 
                     <?php foreach ($pastEvents as $event): ?>
-                        <div style="border:1px solid #e5e7eb; border-radius:8px; padding:1.25rem; margin-bottom:1rem;">
-                            <h3 style="color:#0d7377; font-size:1rem; margin-bottom:0.75rem;"><?= h($event['title']) ?></h3>
+                        <div id="feedback-card-<?= (int) $event['event_id'] ?>" style="border:1px solid #e5e7eb; border-radius:8px; padding:1.25rem; margin-bottom:1rem;">
+                            <h3 style="color:#0d7377; font-size:1rem; margin-bottom:0.75rem;">Feedback for: <?= h($event['title']) ?></h3>
                             <form method="post" class="event-form" style="gap:1rem;">
                                 <input type="hidden" name="event_id" value="<?= (int) $event['event_id'] ?>">
                                 <input type="hidden" name="action" value="feedback">
@@ -272,6 +274,29 @@ $stmt->close();
                                     <button type="submit" class="btn btn-primary">Submit Feedback</button>
                                 </div>
                             </form>
+                        </div>
+                    <?php endforeach; ?>
+                </section>
+            <?php endif; ?>
+
+            <?php
+            $submittedFeedback = array_filter($events, function($e) {
+                return $e['feedback_rating'] !== null;
+            });
+            ?>
+            <?php if (!empty($submittedFeedback)): ?>
+                <section class="dashboard-section" aria-labelledby="submitted-feedback-heading">
+                    <div class="section-header">
+                        <div>
+                            <h2 id="submitted-feedback-heading">Submitted Feedback</h2>
+                            <p>Your feedback for completed events.</p>
+                        </div>
+                    </div>
+                    <?php foreach ($submittedFeedback as $event): ?>
+                        <div style="border:1px solid #e5e7eb; border-radius:8px; padding:1.25rem; margin-bottom:1rem;">
+                            <h3 style="color:#0d7377; font-size:1rem; margin-bottom:0.5rem;"><?= h($event['title']) ?></h3>
+                            <p><strong>Rating:</strong> <?= (int) $event['feedback_rating'] ?> / 5</p>
+                            <p><strong>Comments:</strong> <?= h($event['feedback_comment']) ?></p>
                         </div>
                     <?php endforeach; ?>
                 </section>
