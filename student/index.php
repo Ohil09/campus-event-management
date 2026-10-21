@@ -3,67 +3,105 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../auth/auth_check.php';
 require_role('student');
-
 require_once __DIR__ . '/../config/database.php';
 
+$studentId   = (int) ($_SESSION['user_id'] ?? 0);
+$studentName = (string) ($_SESSION['full_name'] ?? 'Student');
+
+function h(mixed $value): string {
+    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
+
 // Get search and category filters
-$search = trim($_GET['search'] ?? '');
-$category = $_GET['category'] ?? 'All';
+$search   = trim((string) ($_GET['search'] ?? ''));
+$category = (string) ($_GET['category'] ?? 'All');
 
 // Fetch active categories for the filter
-$categories = [];
-
-$categorySql = "
-    SELECT category_name
-    FROM categories
-    WHERE status = 'active'
-    ORDER BY category_name
-";
-
-$categoryResult = $conn->query($categorySql);
-
+$categories    = [];
+$categoryResult = $conn->query(
+    "SELECT category_name FROM categories WHERE status = 'active' ORDER BY category_name"
+);
 if ($categoryResult) {
     while ($row = $categoryResult->fetch_assoc()) {
         $categories[] = $row['category_name'];
     }
 }
 
-// Fetch published upcoming events and their category names
-$sql = "
-    SELECT
-        e.event_id,
-        e.title,
-        e.description,
-        e.start_datetime,
-        e.end_datetime,
-        e.venue,
-        e.capacity,
-        e.registration_deadline,
-        c.category_name
-    FROM events e
-    INNER JOIN categories c
-        ON e.category_id = c.category_id
-    WHERE e.status = 'published'
-      AND c.status = 'active'
-      AND e.start_datetime >= NOW()
-";
+// Dashboard stats
+// Total registered events
+$totalRegistered = 0;
+$stmt = $conn->prepare(
+    "SELECT COUNT(*) FROM event_registrations WHERE user_id = ? AND status = 'registered'"
+);
+$stmt->bind_param('i', $studentId);
+$stmt->execute();
+$stmt->bind_result($totalRegistered);
+$stmt->fetch();
+$stmt->close();
+$totalRegistered = (int) $totalRegistered;
+
+// Upcoming registered events
+$upcomingRegistered = 0;
+$stmt = $conn->prepare(
+    "SELECT COUNT(*) FROM event_registrations er
+     INNER JOIN events e ON er.event_id = e.event_id
+     WHERE er.user_id = ? AND er.status = 'registered' AND e.start_datetime >= NOW()"
+);
+$stmt->bind_param('i', $studentId);
+$stmt->execute();
+$stmt->bind_result($upcomingRegistered);
+$stmt->fetch();
+$stmt->close();
+$upcomingRegistered = (int) $upcomingRegistered;
+
+// Total upcoming published events available
+$totalAvailable = 0;
+$stmt = $conn->prepare(
+    "SELECT COUNT(*) FROM events e
+     INNER JOIN categories c ON e.category_id = c.category_id
+     WHERE e.status = 'published' AND c.status = 'active' AND e.start_datetime >= NOW()"
+);
+$stmt->execute();
+$stmt->bind_result($totalAvailable);
+$stmt->fetch();
+$stmt->close();
+$totalAvailable = (int) $totalAvailable;
+
+// Volunteer applications count
+$volunteerApps = 0;
+$stmt = $conn->prepare(
+    "SELECT COUNT(*) FROM volunteer_applications WHERE user_id = ?"
+);
+$stmt->bind_param('i', $studentId);
+$stmt->execute();
+$stmt->bind_result($volunteerApps);
+$stmt->fetch();
+$stmt->close();
+$volunteerApps = (int) $volunteerApps;
+
+// Fetch published upcoming events with category names
+$sql = "SELECT e.event_id, e.title, e.description, e.start_datetime, e.end_datetime,
+               e.venue, e.capacity, e.registration_deadline, c.category_name
+        FROM events e
+        INNER JOIN categories c ON e.category_id = c.category_id
+        WHERE e.status = 'published' AND c.status = 'active' AND e.start_datetime >= NOW()";
 
 $conditions = [];
-$params = [];
-$types = '';
+$params     = [];
+$types      = '';
 
 if ($search !== '') {
     $conditions[] = '(e.title LIKE ? OR e.venue LIKE ?)';
-    $searchTerm = '%' . $search . '%';
-    $params[] = $searchTerm;
-    $params[] = $searchTerm;
-    $types .= 'ss';
+    $searchTerm   = '%' . $search . '%';
+    $params[]     = $searchTerm;
+    $params[]     = $searchTerm;
+    $types       .= 'ss';
 }
 
 if ($category !== 'All' && in_array($category, $categories, true)) {
     $conditions[] = 'c.category_name = ?';
-    $params[] = $category;
-    $types .= 's';
+    $params[]     = $category;
+    $types       .= 's';
 }
 
 if (!empty($conditions)) {
@@ -73,236 +111,147 @@ if (!empty($conditions)) {
 $sql .= ' ORDER BY e.start_datetime ASC';
 
 $stmt = $conn->prepare($sql);
-
 if (!$stmt) {
     die('Unable to prepare the events query.');
 }
-
 if (!empty($params)) {
     $stmt->bind_param($types, ...$params);
 }
-
 $stmt->execute();
 $result = $stmt->get_result();
-
-function h($value)
-{
-    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
-}
+$events = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Discover Events</title>
-
-<style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f6fb;
-    color: #26324a;
-}
-
-header {
-    background: #fff;
-    padding: 20px 7%;
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-header a {
-    margin-left: 18px;
-    color: #3157c8;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.hero {
-    padding: 40px 7%;
-    background: #e7edff;
-}
-
-main {
-    max-width: 1100px;
-    margin: auto;
-    padding: 25px;
-}
-
-.filters {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin: 20px 0;
-}
-
-input, select {
-    padding: 12px;
-    border: 1px solid #ccd3e0;
-    border-radius: 8px;
-}
-
-input {
-    flex: 1;
-    min-width: 180px;
-}
-
-button, .btn {
-    display: inline-block;
-    padding: 11px 15px;
-    background: #3157c8;
-    color: white;
-    border: 0;
-    border-radius: 7px;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 18px;
-}
-
-.card {
-    background: white;
-    border: 1px solid #e1e5ef;
-    border-radius: 12px;
-    padding: 20px;
-}
-
-.tag {
-    color: #3157c8;
-    font-size: 13px;
-    font-weight: bold;
-}
-
-.info {
-    color: #5d687d;
-    line-height: 1.8;
-}
-
-.empty {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Discover and register for upcoming campus events">
+    <title>Student Dashboard | Campus Event Management System</title>
+    <link rel="stylesheet" href="../public/css/student.css">
 </head>
-
 <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
 
-<header>
-    <strong>CampusEvents</strong>
-    <nav>
-        <a href="index.php">Discover Events</a>
-        <a href="my-events.php">My Events</a>
-    </nav>
-</header>
+    <header class="site-header">
+        <div class="header-container">
+            <a href="../index.php" class="site-logo" aria-label="Campus Event Management System Home">CampusEvent</a>
+            <button type="button" class="menu-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="student-navigation">&#9776;</button>
+            <div class="header-user">
+                <span class="welcome-text">Welcome, <?= h($studentName) ?></span>
+                <a href="../auth/logout.php" class="logout-link">Logout</a>
+            </div>
+        </div>
+    </header>
 
-<section class="hero">
-    <h1>Discover Campus Events</h1>
-    <p>Find events, learn new skills and participate in campus activities.</p>
-</section>
+    <div class="page-layout">
+        <aside class="sidebar" id="student-navigation" aria-label="Student navigation">
+            <nav>
+                <h2 class="sidebar-title">Student</h2>
+                <ul class="sidebar-menu">
+                    <li><a href="index.php" class="nav-link active" aria-current="page"><span aria-hidden="true">&#128218;</span><span>Discover Events</span></a></li>
+                    <li><a href="my-events.php" class="nav-link"><span aria-hidden="true">&#128196;</span><span>My Events</span></a></li>
+                    <li><a href="volunteer-opportunities.php" class="nav-link"><span aria-hidden="true">&#129309;</span><span>Volunteer</span></a></li>
+                </ul>
+            </nav>
+        </aside>
 
-<main>
-    <h2>Upcoming Events</h2>
+        <main id="main-content" class="main-content">
+            <section class="page-heading">
+                <div>
+                    <p class="breadcrumb">Student</p>
+                    <h1>Discover Campus Events</h1>
+                    <p class="page-description">Find events, learn new skills and participate in campus activities.</p>
+                </div>
+                <a href="my-events.php" class="btn btn-primary">My Events</a>
+            </section>
 
-    <form class="filters" method="get">
-        <input
-            name="search"
-            placeholder="Search by title or venue"
-            value="<?= h($search) ?>"
-        >
-
-        <select name="category">
-            <option value="All">All Categories</option>
-
-            <?php foreach ($categories as $c): ?>
-                <option
-                    value="<?= h($c) ?>"
-                    <?= $category === $c ? 'selected' : '' ?>
-                >
-                    <?= h($c) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-
-        <button type="submit">Search</button>
-        <a class="btn" href="index.php">Reset</a>
-    </form>
-
-    <div class="grid">
-        <?php if ($result->num_rows > 0): ?>
-
-            <?php while ($event = $result->fetch_assoc()): ?>
-
-                <article class="card">
-                    <p class="tag">
-                        <?= h($event['category_name']) ?>
-                    </p>
-
-                    <h3><?= h($event['title']) ?></h3>
-
-                    <p><?= nl2br(h($event['description'])) ?></p>
-
-                    <div class="info">
-                        📅 <?= date(
-                            'd M Y',
-                            strtotime($event['start_datetime'])
-                        ) ?><br>
-
-                        🕒 <?= date(
-                            'h:i A',
-                            strtotime($event['start_datetime'])
-                        ) ?><br>
-
-                        📍 <?= h($event['venue']) ?><br>
-
-                        👥 Capacity: <?= (int)$event['capacity'] ?><br>
-
-                        📝 Registration deadline:
-                        <?= date(
-                            'd M Y, h:i A',
-                            strtotime($event['registration_deadline'])
-                        ) ?>
-                    </div>
-
-                    <p>
-                        <a
-                            class="btn"
-                            href="event-details.php?id=<?= (int)$event['event_id'] ?>"
-                        >
-                            View Details
-                        </a>
-                    </p>
+            <section class="dashboard-stats" aria-labelledby="student-stats-heading">
+                <h2 id="student-stats-heading" class="visually-hidden">Your activity summary</h2>
+                <article class="stat-card">
+                    <div class="stat-card-header"><h3>Available Events</h3></div>
+                    <p class="stat-value"><?= $totalAvailable ?></p>
+                    <p class="stat-description">Published upcoming events</p>
                 </article>
+                <article class="stat-card">
+                    <div class="stat-card-header"><h3>My Registrations</h3></div>
+                    <p class="stat-value"><?= $totalRegistered ?></p>
+                    <p class="stat-description">Events you registered for</p>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-header"><h3>Upcoming</h3></div>
+                    <p class="stat-value"><?= $upcomingRegistered ?></p>
+                    <p class="stat-description">Your upcoming events</p>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-card-header"><h3>Volunteer Apps</h3></div>
+                    <p class="stat-value"><?= $volunteerApps ?></p>
+                    <p class="stat-description">Your volunteer applications</p>
+                </article>
+            </section>
 
-            <?php endwhile; ?>
+            <section class="dashboard-section" aria-labelledby="upcoming-events-heading">
+                <div class="section-header">
+                    <div>
+                        <h2 id="upcoming-events-heading">Upcoming Events</h2>
+                        <p>Browse and register for campus events.</p>
+                    </div>
+                </div>
 
-        <?php else: ?>
+                <form class="event-filters" method="get" action="index.php">
+                    <div class="form-group">
+                        <label for="event-search">Search Events</label>
+                        <input type="search" id="event-search" name="search" placeholder="Search by title or venue" value="<?= h($search) ?>">
+                    </div>
+                    <div class="form-group">
+                        <label for="category-filter">Category</label>
+                        <select id="category-filter" name="category">
+                            <option value="All">All Categories</option>
+                            <?php foreach ($categories as $c): ?>
+                                <option value="<?= h($c) ?>" <?= $category === $c ? 'selected' : '' ?>><?= h($c) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:flex;flex-direction:row;align-items:flex-end;gap:0.5rem;">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <a href="index.php" class="btn btn-secondary">Reset</a>
+                    </div>
+                </form>
 
-            <p class="empty">
-                No upcoming published events found.
-                Try another search or category.
-            </p>
-
-        <?php endif; ?>
+                <?php if (!empty($events)): ?>
+                    <div class="event-grid">
+                        <?php foreach ($events as $event): ?>
+                            <article class="event-card">
+                                <span class="event-card-category"><?= h($event['category_name']) ?></span>
+                                <h3><?= h($event['title']) ?></h3>
+                                <p class="event-card-description"><?= h($event['description']) ?></p>
+                                <div class="event-card-meta">
+                                    <span>📅 <?= date('d M Y', strtotime($event['start_datetime'])) ?></span>
+                                    <span>🕒 <?= date('h:i A', strtotime($event['start_datetime'])) ?></span>
+                                    <span>📍 <?= h($event['venue']) ?></span>
+                                    <span>👥 Capacity: <?= (int) $event['capacity'] ?></span>
+                                    <span>📝 Deadline: <?= date('d M Y, h:i A', strtotime($event['registration_deadline'])) ?></span>
+                                </div>
+                                <div class="event-card-footer">
+                                    <a href="event-details.php?id=<?= (int) $event['event_id'] ?>" class="btn btn-primary">View Details</a>
+                                </div>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <h3>No Events Found</h3>
+                        <p>No upcoming published events match your search. Try another search or category.</p>
+                    </div>
+                <?php endif; ?>
+            </section>
+        </main>
     </div>
-</main>
 
+    <footer class="site-footer">
+        <p>&copy; 2026 Campus Event &amp; Volunteer Management System</p>
+    </footer>
+    <script src="../public/js/main.js"></script>
 </body>
 </html>
-
-<?php
-$stmt->close();
-$conn->close();
-?>
-

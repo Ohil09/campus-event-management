@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         exit;
 
                     case 'student':
-                        header('Location: ../student/volunteer-opportunities.php');
+                        header('Location: ../student/index.php');
                         exit;
 
                     case 'administrator':
