@@ -14,34 +14,34 @@ INSERT INTO users
     (user_id, full_name, email, password_hash, role, status)
 VALUES
     (1, 'Rahul Sharma', 'rahul.organizer@example.com',
-     'TEMP_HASH_REPLACE', 'organizer', 'active'),
+     '$2y$10$wE7/qR3w8t.VpSj5ZkYQDu2P3zZ/1G9c8X8YyGzN6gJvA8b6W0Xye', 'organizer', 'active'),
 
     (2, 'Ananya Rao', 'ananya.organizer@example.com',
-     'TEMP_HASH_REPLACE', 'organizer', 'active'),
+     '$2y$10$wE7/qR3w8t.VpSj5ZkYQDu2P3zZ/1G9c8X8YyGzN6gJvA8b6W0Xye', 'organizer', 'active'),
 
     (3, 'Vivek Nair', 'vivek.organizer@example.com',
-     'TEMP_HASH_REPLACE', 'organizer', 'active'),
+     '$2y$10$wE7/qR3w8t.VpSj5ZkYQDu2P3zZ/1G9c8X8YyGzN6gJvA8b6W0Xye', 'organizer', 'active'),
 
     (4, 'Admin User', 'admin@example.com',
-     'TEMP_HASH_REPLACE', 'administrator', 'active'),
+     '$2y$10$wE7/qR3w8t.VpSj5ZkYQDu2P3zZ/1G9c8X8YyGzN6gJvA8b6W0Xye', 'administrator', 'active'),
 
     (5, 'Arjun Shetty', 'arjun@example.com',
-     'TEMP_HASH_REPLACE', 'student', 'active'),
+     '$2y$10$wE7/qR3w8t.VpSj5ZkYQDu2P3zZ/1G9c8X8YyGzN6gJvA8b6W0Xye', 'student', 'active'),
 
     (6, 'Priya Menon', 'priya@example.com',
-     'TEMP_HASH_REPLACE', 'student', 'active'),
+     '$2y$10$wE7/qR3w8t.VpSj5ZkYQDu2P3zZ/1G9c8X8YyGzN6gJvA8b6W0Xye', 'student', 'active'),
 
     (7, 'Karan Pai', 'karan@example.com',
-     'TEMP_HASH_REPLACE', 'student', 'active'),
+     '$2y$10$wE7/qR3w8t.VpSj5ZkYQDu2P3zZ/1G9c8X8YyGzN6gJvA8b6W0Xye', 'student', 'active'),
 
     (8, 'Sneha Rao', 'sneha@example.com',
-     'TEMP_HASH_REPLACE', 'student', 'active'),
+     '$2y$10$wE7/qR3w8t.VpSj5ZkYQDu2P3zZ/1G9c8X8YyGzN6gJvA8b6W0Xye', 'student', 'active'),
 
     (9, 'Aditya Kumar', 'aditya@example.com',
-     'TEMP_HASH_REPLACE', 'student', 'active'),
+     '$2y$10$wE7/qR3w8t.VpSj5ZkYQDu2P3zZ/1G9c8X8YyGzN6gJvA8b6W0Xye', 'student', 'active'),
 
     (10, 'Meera Joshi', 'meera@example.com',
-     'TEMP_HASH_REPLACE', 'student', 'active');
+     '$2y$10$wE7/qR3w8t.VpSj5ZkYQDu2P3zZ/1G9c8X8YyGzN6gJvA8b6W0Xye', 'student', 'active');
 
 
 -- =========================================================

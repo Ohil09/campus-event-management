@@ -1,6 +1,8 @@
-
 <?php
-session_start();
+declare(strict_types=1);
+
+require_once __DIR__ . '/../auth/auth_check.php';
+require_role('student');
 
 require_once __DIR__ . '/../config/database.php';
 
@@ -303,3 +305,4 @@ button, .btn {
 $stmt->close();
 $conn->close();
 ?>
+

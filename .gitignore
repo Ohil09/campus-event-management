@@ -21,8 +21,15 @@ desktop.ini
 
 
 # =========================
-# Sensitive Database Configuration
+# Sensitive Database Configuration & Dumps
 # =========================
+*.dump
+*.sql.gz
+*.sql.bak
+dump.sql
+dump_db.php
+db_dump/
+dumps/
 
 
 
