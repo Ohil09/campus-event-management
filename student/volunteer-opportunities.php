@@ -149,7 +149,7 @@ foreach ($myApplications as $app) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Browse and apply for campus volunteer opportunities">
     <title>Volunteer Opportunities | Campus Event Management System</title>
-    <link rel="stylesheet" href="../public/css/organizer.css">
+    <link rel="stylesheet" href="../public/css/student.css">
     <link rel="stylesheet" href="../public/css/volunteer.css">
 </head>
 <body>
@@ -169,9 +169,11 @@ foreach ($myApplications as $app) {
     <div class="page-layout">
         <aside class="sidebar" id="student-navigation" aria-label="Student navigation">
             <nav>
-                <h2 class="sidebar-title">Student Portal</h2>
+                <h2 class="sidebar-title">Student</h2>
                 <ul class="sidebar-menu">
-                    <li><a href="volunteer-opportunities.php" class="nav-link active" aria-current="page"><span aria-hidden="true">&#129309;</span><span>Volunteer Roles</span></a></li>
+                    <li><a href="index.php" class="nav-link"><span aria-hidden="true">&#128218;</span><span>Discover Events</span></a></li>
+                    <li><a href="my-events.php" class="nav-link"><span aria-hidden="true">&#128196;</span><span>My Events</span></a></li>
+                    <li><a href="volunteer-opportunities.php" class="nav-link active" aria-current="page"><span aria-hidden="true">&#129309;</span><span>Volunteer</span></a></li>
                 </ul>
             </nav>
         </aside>

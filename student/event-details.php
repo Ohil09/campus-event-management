@@ -105,7 +105,7 @@ if ($event) {
                             <h2 id="event-details-heading">Event Details</h2>
                             <p>Full information about this event.</p>
                         </div>
-                        <a href="index.php" class="text-link">← Back to Events</a>
+                        <a href="index.php" class="btn btn-primary">Back to Events</a>
                     </div>
 
                     <div style="margin-bottom:1.5rem; line-height:1.8; color:#4b5563;">
