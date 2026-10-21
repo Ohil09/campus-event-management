@@ -150,9 +150,9 @@ $stmt->close();
             <nav>
                 <h2 class="sidebar-title">Student</h2>
                 <ul class="sidebar-menu">
-                    <li><a href="index.php" class="nav-link active" aria-current="page"><span aria-hidden="true">&#128218;</span><span>Discover Events</span></a></li>
-                    <li><a href="my-events.php" class="nav-link"><span aria-hidden="true">&#128196;</span><span>My Events</span></a></li>
-                    <li><a href="volunteer-opportunities.php" class="nav-link"><span aria-hidden="true">&#129309;</span><span>Volunteer</span></a></li>
+                    <li><a href="index.php" class="nav-link active" aria-current="page"><span>Discover Events</span></a></li>
+                    <li><a href="my-events.php" class="nav-link"><span>My Events</span></a></li>
+                    <li><a href="volunteer-opportunities.php" class="nav-link"><span>Volunteer</span></a></li>
                 </ul>
             </nav>
         </aside>

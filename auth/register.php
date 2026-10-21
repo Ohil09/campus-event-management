@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+session_start();
+
 require_once __DIR__ . '/../config/database.php';
 
 $errors = [];
@@ -92,7 +94,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
 
-            $success = 'Account created successfully. You can now log in.';
+            session_regenerate_id(true);
+            $_SESSION['user_id'] = (int) $stmt->insert_id;
+            $_SESSION['full_name'] = $fullName;
+            $_SESSION['role'] = 'student';
+
+            header('Location: ../student/index.php');
+            exit;
 
         } else {
 

@@ -33,7 +33,7 @@ $formError = '';
 
 // Pick up notice message from PRG redirect
 if (isset($_GET['notice']) && $_GET['notice'] !== '') {
-    $notice = htmlspecialchars(urldecode((string) $_GET['notice']), ENT_QUOTES, 'UTF-8');
+    $notice = (string) $_GET['notice'];
 }
 
 // Optional event filter from GET parameter
@@ -459,10 +459,10 @@ $rejectedApps = array_filter($applications, fn($a) => $a['app_status'] === 'reje
             <nav>
                 <h2 class="sidebar-title">Management</h2>
                 <ul class="sidebar-menu">
-                    <li><a href="../organizer/organizer-dashboard.php" class="nav-link"><span aria-hidden="true">&#128202;</span><span>Dashboard</span></a></li>
-                    <li><a href="../organizer/event-management.php" class="nav-link"><span aria-hidden="true">&#128197;</span><span>Manage Events</span></a></li>
-                    <li><a href="volunteer-management.php" class="nav-link active" aria-current="page"><span aria-hidden="true">&#129309;</span><span>Volunteers</span></a></li>
-                    <li><a href="../organizer/event-management.php#participants" class="nav-link"><span aria-hidden="true">&#128101;</span><span>Participants</span></a></li>
+                    <li><a href="../organizer/organizer-dashboard.php" class="nav-link"><span>Dashboard</span></a></li>
+                    <li><a href="../organizer/event-management.php" class="nav-link"><span>Manage Events</span></a></li>
+                    <li><a href="volunteer-management.php" class="nav-link active" aria-current="page"><span>Volunteers</span></a></li>
+                    <li><a href="../organizer/event-management.php#participants" class="nav-link"><span>Participants</span></a></li>
                 </ul>
             </nav>
         </aside>

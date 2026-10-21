@@ -237,12 +237,9 @@ if ($conn !== null) {
             <nav>
                 <h2 class="sidebar-title">Administration</h2>
                 <ul class="sidebar-menu">
-                    <li><a href="admin-dashboard.php" class="nav-link active" aria-current="page"><span
-                                aria-hidden="true">&#128202;</span><span>Dashboard</span></a></li>
-                    <li><a href="administration-reports.php" class="nav-link"><span
-                                aria-hidden="true">&#128101;</span><span>Users & Events</span></a></li>
-                    <li><a href="administration-reports.php#reports" class="nav-link"><span
-                                aria-hidden="true">&#128200;</span><span>Reports & Feedback</span></a></li>
+                    <li><a href="admin-dashboard.php" class="nav-link active" aria-current="page"><span>Dashboard</span></a></li>
+                    <li><a href="administration-reports.php" class="nav-link"><span>Users & Events</span></a></li>
+                    <li><a href="administration-reports.php#reports" class="nav-link"><span>Reports & Feedback</span></a></li>
                 </ul>
             </nav>
         </aside>

@@ -263,10 +263,10 @@ if ($participantEventId > 0) {
             <nav>
                 <h2 class="sidebar-title">Organizer</h2>
                 <ul class="sidebar-menu">
-                    <li><a href="organizer-dashboard.php" class="nav-link"><span aria-hidden="true">&#128202;</span><span>Dashboard</span></a></li>
-                    <li><a href="event-management.php" class="nav-link active" aria-current="page"><span aria-hidden="true">&#128197;</span><span>Manage Events</span></a></li>
-                    <li><a href="../volunteer/volunteer-management.php" class="nav-link"><span aria-hidden="true">&#129309;</span><span>Volunteers</span></a></li>
-                    <li><a href="event-management.php#participants" class="nav-link"><span aria-hidden="true">&#128101;</span><span>Participants</span></a></li>
+                    <li><a href="organizer-dashboard.php" class="nav-link">Dashboard</a></li>
+                    <li><a href="event-management.php" class="nav-link active" aria-current="page">Manage Events</a></li>
+                    <li><a href="../volunteer/volunteer-management.php" class="nav-link">Volunteers</a></li>
+                    <li><a href="event-management.php#participants" class="nav-link">Participants</a></li>
                 </ul>
             </nav>
         </aside>
@@ -442,7 +442,7 @@ if ($participantEventId > 0) {
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group participant-action">
                         <button type="submit" class="btn btn-primary">View Participants</button>
                     </div>
                 </form>
