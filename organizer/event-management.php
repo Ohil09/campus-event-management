@@ -104,6 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $formError = 'The event end time must be later than its start time.';
             } elseif ($deadlineDateTime > $startDateTime) {
                 $formError = 'The registration deadline must be on or before the event start.';
+            } elseif ($postedAction === 'create' && $endDateTime < new DateTime()) {
+                $formError = 'The event date and time must be in the future.';
+            } elseif ($postedAction === 'create' && $deadlineDateTime < new DateTime()) {
+                $formError = 'The registration deadline must be in the future.';
             } elseif ($postedAction === 'update' && $postedEventId === 0) {
                 $formError = 'The event to update could not be identified.';
             } else {
@@ -320,7 +324,7 @@ if ($participantEventId > 0) {
                     </div>
                     <div class="form-group">
                         <label for="event-date">Event Date</label>
-                        <input type="date" id="event-date" name="event_date" required value="<?= h($formData['event_date']) ?>">
+                        <input type="date" id="event-date" name="event_date" min="<?= date('Y-m-d') ?>" required value="<?= h($formData['event_date']) ?>">
                     </div>
                     <div class="form-group">
                         <label for="start-time">Start Time</label>
@@ -340,7 +344,7 @@ if ($participantEventId > 0) {
                     </div>
                     <div class="form-group">
                         <label for="registration-deadline">Registration Deadline</label>
-                        <input type="datetime-local" id="registration-deadline" name="registration_deadline" required value="<?= h($formData['registration_deadline']) ?>">
+                        <input type="datetime-local" id="registration-deadline" name="registration_deadline" min="<?= date('Y-m-d\TH:i') ?>" required value="<?= h($formData['registration_deadline']) ?>">
                     </div>
                     <div class="form-group">
                         <label for="event-status">Event Status</label>
