@@ -517,7 +517,7 @@ button,
     border-radius: 6px;
     font-weight: 600;
     text-align: center;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
 }
 
 .btn-primary {

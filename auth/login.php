@@ -411,7 +411,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             loginPassword.classList.remove('border-red-500', 'bg-red-50/20');
 
             if (!emailPattern.test(loginEmail.value.trim())) {
-                loginEmailError.textContent = 'Enter a valid email address, such as name@gmail.com or name@outlook.com.';
+                loginEmailError.textContent = 'Enter a valid email address, such as name@gmail.com ';
                 loginEmailError.classList.remove('hidden');
                 loginEmail.setAttribute('aria-invalid', 'true');
                 loginEmail.classList.add('border-red-500', 'bg-red-50/20');
