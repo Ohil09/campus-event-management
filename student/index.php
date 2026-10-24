@@ -45,7 +45,7 @@ $upcomingRegistered = 0;
 $stmt = $conn->prepare(
     "SELECT COUNT(*) FROM event_registrations er
      INNER JOIN events e ON er.event_id = e.event_id
-     WHERE er.user_id = ? AND er.status = 'registered' AND e.start_datetime >= NOW()"
+     WHERE er.user_id = ? AND er.status = 'registered' AND e.end_datetime >= NOW()"
 );
 $stmt->bind_param('i', $studentId);
 $stmt->execute();
@@ -59,7 +59,7 @@ $totalAvailable = 0;
 $stmt = $conn->prepare(
     "SELECT COUNT(*) FROM events e
      INNER JOIN categories c ON e.category_id = c.category_id
-     WHERE e.status = 'published' AND c.status = 'active' AND e.start_datetime >= NOW()"
+     WHERE e.status = 'published' AND c.status = 'active' AND e.end_datetime >= NOW()"
 );
 $stmt->execute();
 $stmt->bind_result($totalAvailable);
@@ -84,7 +84,7 @@ $sql = "SELECT e.event_id, e.title, e.description, e.start_datetime, e.end_datet
                e.venue, e.capacity, e.registration_deadline, c.category_name
         FROM events e
         INNER JOIN categories c ON e.category_id = c.category_id
-        WHERE e.status = 'published' AND c.status = 'active' AND e.start_datetime >= NOW()";
+        WHERE e.status = 'published' AND c.status = 'active' AND e.end_datetime >= NOW()";
 
 $conditions = [];
 $params     = [];

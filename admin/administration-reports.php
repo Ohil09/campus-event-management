@@ -228,9 +228,10 @@ if ($conn !== null) {
                 <ul class="sidebar-menu">
                     <li><a href="admin-dashboard.php" class="nav-link"><span>Dashboard</span></a>
                     </li>
-                    <li><a href="administration-reports.php" class="nav-link active"
-                            aria-current="page"><span>System Management</span></a></li>
-                    <li><a href="administration-reports.php#reports" class="nav-link"><span>Reports & Feedback</span></a></li>
+                    <li><a href="administration-reports.php" class="nav-link active" aria-current="page"><span>System
+                                Management</span></a></li>
+                    <li><a href="administration-reports.php#reports" class="nav-link"><span>Reports &
+                                Feedback</span></a></li>
                 </ul>
             </nav>
         </aside>
@@ -337,7 +338,7 @@ if ($conn !== null) {
                                 <th>Organizer</th>
                                 <th>Date</th>
                                 <th>Status</th>
-                                <th style="text-align:center;">Change Status</th>
+                                <th style="text-align:center;min-width:180px;white-space:nowrap;">Change Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -356,9 +357,9 @@ if ($conn !== null) {
                                         <td><?= h(date('d M Y', strtotime($event['start_datetime']))) ?></td>
                                         <td><span class="status <?= $statusClass ?>"><?= h(ucfirst($event['status'])) ?></span>
                                         </td>
-                                        <td style="text-align:center;">
+                                        <td style="text-align:center;white-space:nowrap;">
                                             <form method="post" action="administration-reports.php#events"
-                                                style="margin:0;display:flex;gap:0.4rem;justify-content:center;align-items:center;">
+                                                style="margin:0;display:flex;gap:0.4rem;justify-content:center;align-items:center;flex-wrap:nowrap;">
                                                 <input type="hidden" name="csrf_token"
                                                     value="<?= h($_SESSION['csrf_token']) ?>">
                                                 <input type="hidden" name="admin_action" value="update_event_status">
@@ -372,7 +373,7 @@ if ($conn !== null) {
                                                     <?php endforeach; ?>
                                                 </select>
                                                 <button type="submit" class="btn btn-primary"
-                                                    style="padding:0.35rem 0.7rem;font-size:0.82rem;min-height:auto;">Save</button>
+                                                    style="padding:0.35rem 0.7rem;font-size:0.82rem;min-height:auto;white-space:nowrap;flex-shrink:0;">Save</button>
                                             </form>
                                         </td>
                                     </tr>

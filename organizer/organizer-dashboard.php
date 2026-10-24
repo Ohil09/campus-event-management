@@ -89,6 +89,100 @@ $stmt->execute();
 $result = $stmt->get_result();
 $recentRegistrations = $result->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
+
+// Helper function for HTML escaping
+if (!function_exists('h')) {
+    function h(mixed $value): string
+    {
+        return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+// Reports & Feedback: Fetch aggregate metrics for this organizer's events
+$reportStats = ['avg_rating' => 0, 'total_feedback' => 0];
+$statsStmt = $conn->prepare(
+    "SELECT 
+        AVG(f.rating) AS avg_rating,
+        COUNT(f.feedback_id) AS total_feedback
+     FROM feedback f
+     INNER JOIN events e ON f.event_id = e.event_id
+     WHERE e.organizer_id = ?"
+);
+$statsStmt->bind_param('i', $organizerId);
+$statsStmt->execute();
+$statsRes = $statsStmt->get_result()->fetch_assoc();
+if ($statsRes) {
+    $reportStats['avg_rating'] = $statsRes['avg_rating'] ? round((float) $statsRes['avg_rating'], 1) : 0;
+    $reportStats['total_feedback'] = (int) ($statsRes['total_feedback'] ?? 0);
+}
+$statsStmt->close();
+
+// Fetch all events by this organizer for the feedback dropdown filter
+$organizerEventsStmt = $conn->prepare(
+    "SELECT event_id, title 
+     FROM events 
+     WHERE organizer_id = ? 
+     ORDER BY start_datetime DESC"
+);
+$organizerEventsStmt->bind_param('i', $organizerId);
+$organizerEventsStmt->execute();
+$organizerEvents = $organizerEventsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$organizerEventsStmt->close();
+
+// Fetch recent feedback submissions across all events of this organizer
+$fbStmt = $conn->prepare(
+    "SELECT f.rating, f.comment, f.submitted_at, u.full_name, e.title AS event_title 
+     FROM feedback f 
+     INNER JOIN users u ON f.user_id = u.user_id 
+     INNER JOIN events e ON f.event_id = e.event_id 
+     WHERE e.organizer_id = ? 
+     ORDER BY f.submitted_at DESC 
+     LIMIT 10"
+);
+$fbStmt->bind_param('i', $organizerId);
+$fbStmt->execute();
+$recentFeedback = $fbStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$fbStmt->close();
+
+// Per-Event Feedback logic
+$feedbackEventId = filter_var($_GET['feedback_event_id'] ?? 0, FILTER_VALIDATE_INT);
+$feedbackEventId = ($feedbackEventId !== false && $feedbackEventId > 0) ? $feedbackEventId : 0;
+$eventFeedback = [];
+$eventAvgRating = 0;
+$eventFeedbackCount = 0;
+$selectedEventTitle = '';
+
+if ($feedbackEventId > 0) {
+    // Verify event ownership by organizer and get event title
+    $evTitleStmt = $conn->prepare("SELECT title FROM events WHERE event_id = ? AND organizer_id = ?");
+    $evTitleStmt->bind_param('ii', $feedbackEventId, $organizerId);
+    $evTitleStmt->execute();
+    $evTitleRes = $evTitleStmt->get_result()->fetch_assoc();
+    $selectedEventTitle = $evTitleRes ? (string) $evTitleRes['title'] : '';
+    $evTitleStmt->close();
+
+    if ($selectedEventTitle !== '') {
+        $evFbStmt = $conn->prepare(
+            "SELECT f.rating, f.comment, f.submitted_at, u.full_name 
+             FROM feedback f 
+             INNER JOIN users u ON f.user_id = u.user_id 
+             WHERE f.event_id = ? 
+             ORDER BY f.submitted_at DESC"
+        );
+        $evFbStmt->bind_param('i', $feedbackEventId);
+        $evFbStmt->execute();
+        $eventFeedback = $evFbStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $evFbStmt->close();
+
+        if (!empty($eventFeedback)) {
+            $eventFeedbackCount = count($eventFeedback);
+            $ratingSum = array_sum(array_column($eventFeedback, 'rating'));
+            $eventAvgRating = round($ratingSum / $eventFeedbackCount, 1);
+        }
+    } else {
+        $feedbackEventId = 0;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -127,6 +221,7 @@ $stmt->close();
                     <li><a href="../volunteer/volunteer-management.php" class="nav-link"><span>Volunteers</span></a>
                     </li>
                     <li><a href="event-management.php#participants" class="nav-link"><span>Participants</span></a></li>
+                    <li><a href="organizer-dashboard.php#reports" class="nav-link"><span>Reports &amp; Feedback</span></a></li>
                 </ul>
             </nav>
         </aside>
@@ -227,6 +322,168 @@ $stmt->close();
                         </tbody>
                     </table>
                 </div>
+            </section>
+
+            <!-- Reports & Feedback Section -->
+            <section id="reports" class="dashboard-section" aria-labelledby="reports-feedback-heading">
+                <div class="section-header">
+                    <div>
+                        <h2 id="reports-feedback-heading">Reports &amp; Feedback</h2>
+                        <p>Participant satisfaction and feedback overview for your events.</p>
+                    </div>
+                </div>
+
+                <!-- Global stats -->
+                <div class="dashboard-stats" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 0;">
+                    <article class="stat-card">
+                        <div class="stat-card-header">
+                            <h3>Average Rating</h3>
+                        </div>
+                        <p class="stat-value"><?= $reportStats['avg_rating'] ?> / 5</p>
+                        <p class="stat-description">Across all feedback</p>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-card-header">
+                            <h3>Total Feedback</h3>
+                        </div>
+                        <p class="stat-value"><?= $reportStats['total_feedback'] ?></p>
+                        <p class="stat-description">Submissions received</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Feedback by Event Section -->
+            <section id="feedback-by-event" class="dashboard-section" aria-labelledby="feedback-event-heading">
+                <div class="section-header">
+                    <div>
+                        <h2 id="feedback-event-heading">Feedback by Event</h2>
+                        <p>Filter feedback by specific event or review recent submissions.</p>
+                    </div>
+                </div>
+
+                <!-- Per-event feedback filter -->
+                <form method="get" action="organizer-dashboard.php#feedback-by-event"
+                    style="display:flex;gap:1rem;margin-bottom:1.5rem;align-items:flex-end;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:200px;">
+                        <label for="feedback_event"
+                            style="font-weight:600;font-size:0.9rem;margin-bottom:0.3rem;display:block;color:#374151;">Select
+                            Event</label>
+                        <select id="feedback_event" name="feedback_event_id" onchange="this.form.submit()"
+                            style="width:100%;padding:0.6rem;border:1px solid #dfe4ea;border-radius:6px;background:#fff;color:#1f2937;">
+                            <?php if (empty($organizerEvents)): ?>
+                                <option value="0" selected disabled>-- No events found --</option>
+                            <?php else: ?>
+                                <option value="0" <?= $feedbackEventId === 0 ? 'selected' : '' ?>>-- All Events --</option>
+                                <?php foreach ($organizerEvents as $ev): ?>
+                                    <option value="<?= (int) $ev['event_id'] ?>" <?= $feedbackEventId === (int) $ev['event_id'] ? 'selected' : '' ?>><?= h($ev['title']) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <?php if ($feedbackEventId > 0): ?>
+                        <a href="organizer-dashboard.php#feedback-by-event" class="btn btn-secondary"
+                            style="padding:0.6rem 1.2rem;min-height:auto;">Clear</a>
+                    <?php endif; ?>
+                </form>
+
+                <?php if ($feedbackEventId > 0 && $selectedEventTitle !== ''): ?>
+                    <!-- Per-event average score card -->
+                    <div
+                        style="background:linear-gradient(135deg,#f0f4f8,#fff);border:1px solid #cbd5e1;border-radius:10px;padding:1.2rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+                        <div>
+                            <p style="font-size:0.85rem;color:#6b7280;margin:0 0 0.2rem;">Average Score for</p>
+                            <p style="font-weight:700;font-size:1.05rem;color:#163a5f;margin:0;"><?= h($selectedEventTitle) ?>
+                            </p>
+                        </div>
+                        <div style="margin-left:auto;text-align:center;">
+                            <?php
+                            $stars = '';
+                            $fullStars = (int) floor($eventAvgRating);
+                            $hasHalf = ($eventAvgRating - $fullStars) >= 0.5;
+                            for ($s = 1; $s <= 5; $s++) {
+                                if ($s <= $fullStars) {
+                                    $stars .= '<span style="color:#f59e0b;font-size:1.4rem;">&#9733;</span>';
+                                } elseif ($hasHalf && $s === $fullStars + 1) {
+                                    $stars .= '<span style="color:#f59e0b;font-size:1.4rem;">&#9734;</span>';
+                                } else {
+                                    $stars .= '<span style="color:#d1d5db;font-size:1.4rem;">&#9734;</span>';
+                                }
+                            }
+                            echo $stars;
+                            ?>
+                            <p style="font-size:1.8rem;font-weight:800;color:#163a5f;margin:0.2rem 0 0;">
+                                <?= $eventAvgRating ?> <span style="font-size:1rem;font-weight:500;color:#6b7280;">/
+                                    5</span>
+                            </p>
+                            <p style="font-size:0.8rem;color:#6b7280;margin:0;"><?= $eventFeedbackCount ?>
+                                response<?= $eventFeedbackCount !== 1 ? 's' : '' ?></p>
+                        </div>
+                    </div>
+
+                    <!-- Per-event feedback table -->
+                    <?php if (!empty($eventFeedback)): ?>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Rating</th>
+                                        <th>Comments</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($eventFeedback as $fb): ?>
+                                        <tr>
+                                            <td><?= h($fb['full_name']) ?></td>
+                                            <td>
+                                                <span class="status status-open"><?= (int) $fb['rating'] ?> / 5</span>
+                                            </td>
+                                            <td><?= h($fb['comment'] ?: 'No comment provided.') ?></td>
+                                            <td><?= h(date('d M Y', strtotime($fb['submitted_at']))) ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <p style="color:#6b7280;text-align:center;padding:2rem;">No feedback submitted for this event yet.</p>
+                    <?php endif; ?>
+
+                <?php else: ?>
+                    <!-- Default: recent feedback across all events -->
+                    <h3 style="color:#163a5f;margin-bottom:1rem;font-size:1.05rem;font-weight:600;">Recent Feedback Submissions</h3>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Student</th>
+                                    <th>Rating</th>
+                                    <th>Comments</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($recentFeedback)):
+                                    foreach ($recentFeedback as $fb): ?>
+                                        <tr>
+                                            <td><strong><?= h($fb['event_title']) ?></strong></td>
+                                            <td><?= h($fb['full_name']) ?></td>
+                                            <td><span class="status status-open"><?= (int) $fb['rating'] ?> / 5</span></td>
+                                            <td><?= h($fb['comment'] ?: 'No comment provided.') ?></td>
+                                            <td><?= h(date('d M Y', strtotime($fb['submitted_at']))) ?></td>
+                                        </tr>
+                                    <?php endforeach; else: ?>
+                                    <tr>
+                                        <td colspan="5" style="text-align:center;padding:1.5rem;color:#6b7280;">No feedback submitted yet.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
             </section>
 
             <section class="dashboard-section" aria-labelledby="quick-actions-heading">
