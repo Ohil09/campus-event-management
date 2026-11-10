@@ -10,16 +10,33 @@ $error = '';
 $email = '';
 $notice = '';
 
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if (isset($_GET['notice']) && is_string($_GET['notice'])) {
     $notice = trim($_GET['notice']);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $postedToken = $_POST['csrf_token'] ?? '';
+    $emailInput = $_POST['email'] ?? '';
+    $passwordInput = $_POST['password'] ?? '';
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $email = is_string($emailInput) ? trim($emailInput) : '';
+    $password = is_string($passwordInput) ? $passwordInput : '';
+
+    if (
+        !is_string($postedToken) ||
+        !hash_equals((string) $_SESSION['csrf_token'], $postedToken)
+    ) {
+        $error = 'Invalid form submission. Please refresh and try again.';
+
+    } elseif (
+        !filter_var($email, FILTER_VALIDATE_EMAIL) ||
+        strlen($email) > 150
+    ) {
 
         $error = 'Please enter a valid email address.';
 
@@ -273,6 +290,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                                 </svg>
                             </div>
+                            <input type="hidden" name="csrf_token"
+                                value="<?= htmlspecialchars((string) $_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
                             <input type="email" id="email" name="email"
                                 value="<?= htmlspecialchars($email, ENT_QUOTES, 'UTF-8') ?>" autocomplete="email"
                                 required placeholder="e.g. abc@gmail.com" aria-describedby="email-error"

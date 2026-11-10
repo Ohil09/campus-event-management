@@ -12,39 +12,62 @@ $fullName = '';
 $email = '';
 $role = 'student';
 
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $fullName = trim($_POST['full_name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['confirm_password'] ?? '';
-    $role = $_POST['role'] ?? 'student';
+    $postedToken = $_POST['csrf_token'] ?? '';
+    $fullNameInput = $_POST['full_name'] ?? '';
+    $emailInput = $_POST['email'] ?? '';
+    $passwordInput = $_POST['password'] ?? '';
+    $confirmPasswordInput = $_POST['confirm_password'] ?? '';
+
+    $fullName = is_string($fullNameInput) ? trim($fullNameInput) : '';
+    $email = is_string($emailInput) ? trim($emailInput) : '';
+    $password = is_string($passwordInput) ? $passwordInput : '';
+    $confirmPassword = is_string($confirmPasswordInput) ? $confirmPasswordInput : '';
 
     // -------------------------------
     // Validation
     // -------------------------------
 
-    if ($fullName === '') {
-        $errors[] = 'Full name is required.';
+    if (
+        !is_string($postedToken) ||
+        !hash_equals((string) $_SESSION['csrf_token'], $postedToken)
+    ) {
+        $errors[] = 'Invalid form submission. Please refresh and try again.';
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (
+        $fullName === '' ||
+        !preg_match('/^(?=.{2,100}$)[\p{L}][\p{L}\s.\'-]*$/u', $fullName)
+    ) {
+        $errors[] = 'Use a name with 2-100 letters; spaces, apostrophes, periods, and hyphens are allowed.';
+    }
+
+    if (
+        $email === '' ||
+        strlen($email) > 150 ||
+        !filter_var($email, FILTER_VALIDATE_EMAIL)
+    ) {
         $errors[] = 'Please enter a valid email address.';
     }
 
-    if (strlen($password) < 8) {
-        $errors[] = 'Password must be at least 8 characters long.';
+    if (
+        strlen($password) > 255 ||
+        !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/', $password)
+    ) {
+        $errors[] = 'Password must be at least 8 characters and include uppercase, lowercase, and a number.';
     }
 
     if ($password !== $confirmPassword) {
         $errors[] = 'Passwords do not match.';
     }
 
-    $allowedRoles = ['student'];
-
-    if (!in_array($role, $allowedRoles, true)) {
-        $errors[] = 'Invalid role selected.';
-    }
+    // Public registration can only create student accounts.
+    $role = 'student';
 
     // -------------------------------
     // Check email existence
@@ -288,6 +311,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Registration Form -->
                 <form action="register.php" method="post" id="register-form" novalidate class="space-y-4">
+                    <input type="hidden" name="csrf_token"
+                        value="<?= htmlspecialchars((string) $_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
 
                     <!-- Full Name -->
                     <div>
