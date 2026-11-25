@@ -10,7 +10,7 @@ if (isset($_SESSION['user_id']) && !empty($_SESSION['role'])) {
             header('Location: student/');
             exit;
         case 'administrator':
-            header('Location: admin/');
+            header('Location: admin/admin-dashboard.php');
             exit;
         default:
             header('Location: auth/login.php');
